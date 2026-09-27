@@ -1,0 +1,13 @@
+{
+  "name": "boom-vehicle-foundation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "node verification/verify.mjs"
+  },
+  "dependencies": {
+    "three": "0.185.1",
+    "crashcat": "0.0.3"
+  }
+}
