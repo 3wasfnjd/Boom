@@ -10,9 +10,9 @@
       "status": "passed",
       "details": {
         "position": [
-          2.691531929348677e-15,
-          -1.176836406102666e-14,
-          6.053061568310503
+          -0.32186933097030507,
+          0.02654413289191737,
+          4.807154603541264
         ],
         "speed": 1.3509413189192983
       }
@@ -37,9 +37,9 @@
       "status": "passed",
       "details": {
         "position": [
-          3.3171363556349218e-15,
-          -5.828670879282072e-15,
-          -10.6571118518674
+          0.000746687139717821,
+          0.029706244709646334,
+          -10.14340787072469
         ],
         "speed": -0.8221826262359087
       }
@@ -53,7 +53,7 @@
       "status": "passed",
       "details": {
         "shots": 35,
-        "hits": 27,
+        "hits": 18,
         "targets": [
           {
             "id": 0,
@@ -67,8 +67,8 @@
           },
           {
             "id": 2,
-            "health": 0,
-            "active": false
+            "health": 100,
+            "active": true
           },
           {
             "id": 3,
@@ -96,7 +96,7 @@
       "name": "h9: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 51,
+        "geometry": 59,
         "shots": 72,
         "effects": 72
       }
@@ -153,7 +153,7 @@
       "name": "shas: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 83,
+        "geometry": 91,
         "shots": 72,
         "effects": 72
       }
@@ -210,7 +210,7 @@
       "name": "datsun: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 115,
+        "geometry": 123,
         "shots": 72,
         "effects": 72
       }
@@ -231,8 +231,8 @@
       "name": "Repeated vehicle switching reuses loaded GPU geometry",
       "status": "passed",
       "details": {
-        "before": 115,
-        "after": 115
+        "before": 123,
+        "after": 123
       }
     },
     {
@@ -251,7 +251,7 @@
       "name": "Dragging the fire pad rotates the turret",
       "status": "passed",
       "details": {
-        "yaw": -1.5705328288112521,
+        "yaw": -1.5703341459984046,
         "stick": [
           0.8571428571428571,
           0

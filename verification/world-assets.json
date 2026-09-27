@@ -1,0 +1,103 @@
+{
+  "repository": "3wasfnjd/Motri",
+  "revision": "ee7e01dfe848f1bc7e857d51bcee2e687bee21eb",
+  "assets": [
+    {
+      "source": "rest-house/rest-house.glb",
+      "file": "models/world/motri-rest-house.glb",
+      "sourceBytes": 72392,
+      "bytes": 72392,
+      "sha256": "aa40bc99e28934d523746d083a1b397ee80c7c5d3ccb91083dfeb9da2dbb73c8",
+      "roots": "all"
+    },
+    {
+      "source": "scenery/scenery.glb",
+      "file": "models/world/motri-scenery.glb",
+      "sourceBytes": 266188,
+      "bytes": 73412,
+      "sha256": "e697facfa694e736b1cba45cbdacbdc45b9cb50d6a39a8b024a47ef069ece889",
+      "roots": [
+        "bridgePhysicalFixed",
+        "basaltRocksPhysicalStatic.001",
+        "basaltRocksPhysicalStatic.003"
+      ]
+    },
+    {
+      "source": "fences/fences.glb",
+      "file": "models/world/motri-fence.glb",
+      "sourceBytes": 8152,
+      "bytes": 2796,
+      "sha256": "83f9c5bceab573b0dae4ac7e66316e69c4fdf26a588d18a531a72aff6cacd620",
+      "roots": [
+        "fencePhysicalDynamic.001"
+      ]
+    },
+    {
+      "source": "bricks/bricks.glb",
+      "file": "models/world/motri-brick.glb",
+      "sourceBytes": 6808,
+      "bytes": 2000,
+      "sha256": "2fa45c18f79587d0bd4636bd1b8532f939b273131644f86faf8be1b15f3ee254",
+      "roots": [
+        "Cube.042"
+      ]
+    },
+    {
+      "source": "poleLights/poleLights.glb",
+      "file": "models/world/motri-lamp.glb",
+      "sourceBytes": 44044,
+      "bytes": 4532,
+      "sha256": "b186e68ea2903dea278b982f4134a620eecf0e590cc3bed95f0d10e043e541f3",
+      "roots": [
+        "poleLight.002"
+      ]
+    },
+    {
+      "source": "oakTrees/oakTreesVisual.glb",
+      "file": "models/world/motri-oak.glb",
+      "sourceBytes": 4516,
+      "bytes": 4516,
+      "sha256": "f81118b75a5a8dcc8164128c1c518bb4baffff442c8755c7842688c2d0e59e41",
+      "roots": "all"
+    },
+    {
+      "source": "rest-house/stone-paving.webp",
+      "file": "models/world/motri-paving.webp",
+      "bytes": 44628,
+      "sha256": "5bf2ad5e23e884dd29744273857c069699122380ef6559f09cc07f9511b82a66"
+    },
+    {
+      "source": "palette.png",
+      "file": "models/world/motri-palette.png",
+      "bytes": 362,
+      "sha256": "63780c518061ed026c91615f878741189b4c585651bc875a28577140daad22b9"
+    },
+    {
+      "source": "terrain/terrain.png",
+      "file": "models/world/motri-terrain.png",
+      "bytes": 334262,
+      "sha256": "ba1e67981d31cceae305940246246a2eb50a6bda94dc58ca0875bbf2434573bc"
+    },
+    {
+      "source": "floor/slabs.png",
+      "file": "models/world/motri-slabs.png",
+      "bytes": 45637,
+      "sha256": "c337e34268601da1f2a244cabeb00913341b45603b139fc8e2b716711f9d5ca6"
+    },
+    {
+      "source": "terrain/terrain.glb",
+      "file": "models/world/motri-heightfield.bin",
+      "bytes": 66564,
+      "sha256": "a74850b3f015ac567afe2296df5d8e3e104096adc2b8c8514713a6a65d056eed",
+      "adaptation": "Unmodified vertex Y values, reordered into X/Z grid; float32 little-endian"
+    },
+    {
+      "source": "sources/Game/World/DunesField.js",
+      "file": "src/motri/DunesField.js",
+      "bytes": 6343,
+      "sha256": "c970953cbfb223104a0319a4603e746ad793e11da7436a5a3f616183022fc83e",
+      "adaptation": "Unmodified source; Boom samples and scales this dune field"
+    }
+  ],
+  "totalBytes": 657444
+}

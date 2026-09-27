@@ -1,12 +1,13 @@
 {
   "name": "boom-test-arena",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
     "verify": "node verification/verify.mjs && node verification/shots.mjs",
-    "verify:browser": "node verification/browser.cjs"
+    "verify:browser": "node verification/browser.cjs",
+    "verify:world": "node verification/world-browser.cjs"
   },
   "dependencies": {
     "three": "0.185.1",

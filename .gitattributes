@@ -2,3 +2,8 @@
 *.png binary
 
 app.min.js linguist-generated=true -whitespace
+*.webp binary
+*.wasm binary
+vendor/draco/* linguist-vendored=true -whitespace
+
+*.bin binary

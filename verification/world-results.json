@@ -1,0 +1,146 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "Native terrain includes physical depressions and positive dunes",
+      "status": "passed",
+      "details": {
+        "vertices": 9409,
+        "triangles": 18432,
+        "minHeight": -1.0375102758407593,
+        "maxHeight": 1.4171316623687744
+      }
+    },
+    {
+      "name": "A ridge intercepts a level projectile even with both endpoints above ground",
+      "status": "passed",
+      "details": {
+        "ridge": 0.11030505952380952,
+        "low": 0.5546875,
+        "ground": -0.6595488190650933
+      }
+    },
+    {
+      "name": "Depressed ground intercepts at its real height",
+      "status": "passed",
+      "details": {
+        "ridge": 0.11030505952380952,
+        "low": 0.5546875,
+        "ground": -0.6595488190650933
+      }
+    },
+    {
+      "name": "h9: drives up and down the dune without falling through",
+      "status": "passed",
+      "details": {
+        "position": [
+          22.359762888036933,
+          0.09867968444633346,
+          35.31898689011002
+        ],
+        "minHeight": 0.022796082152970243,
+        "maxHeight": 1.597856008276882,
+        "minClearance": 0.0011294366261947256
+      }
+    },
+    {
+      "name": "shas: drives up and down the dune without falling through",
+      "status": "passed",
+      "details": {
+        "position": [
+          22.35976288803669,
+          0.09867968444694852,
+          35.318986890109535
+        ],
+        "minHeight": 0.022796082152970243,
+        "maxHeight": 1.5978560082768984,
+        "minClearance": 0.0011294366261947256
+      }
+    },
+    {
+      "name": "datsun: drives up and down the dune without falling through",
+      "status": "passed",
+      "details": {
+        "position": [
+          22.359762888036933,
+          0.09867968444633379,
+          35.31898689011002
+        ],
+        "minHeight": 0.022796082152970243,
+        "maxHeight": 1.597856008276882,
+        "minClearance": 0.0011294366261947256
+      }
+    },
+    {
+      "name": "Imported bridge carries a car across the depressed channel",
+      "status": "passed",
+      "details": {
+        "position": [
+          29.679403144372408,
+          0.1696589005205531,
+          -20.092763581761
+        ],
+        "minHeight": -0.00006613374324043741,
+        "maxHeight": 0.1919744825499884,
+        "minClearance": -0.00006613374324043741
+      }
+    },
+    {
+      "name": "Rest-house original front gates allow entry",
+      "status": "passed",
+      "details": {
+        "position": [
+          -21.016790286626403,
+          0.017999999999998795,
+          -3.1846986123942425
+        ],
+        "minHeight": -1.1102230246251565e-16,
+        "maxHeight": 0.17301124130446788,
+        "minClearance": -1.1102230246251565e-16
+      }
+    },
+    {
+      "name": "New side exit has matching visible and physical opening",
+      "status": "passed",
+      "details": {
+        "position": [
+          -2.844619866656096,
+          0.03149834699425691,
+          4.389479554368199
+        ],
+        "minHeight": -1.1102230246251565e-16,
+        "maxHeight": 0.0914045050766753,
+        "minClearance": -1.1102230246251565e-16
+      }
+    },
+    {
+      "name": "Unopened rest-house wall stops the car",
+      "status": "passed",
+      "details": {
+        "position": [
+          -7.0826300006769225,
+          0.0818455258228793,
+          -0.00016305309390613788
+        ],
+        "minHeight": 0.0033607557085295614,
+        "maxHeight": 0.4023724829496591,
+        "minClearance": 0.0033607557085295614
+      }
+    },
+    {
+      "name": "Live projectile crosses the open side gate",
+      "status": "passed",
+      "details": {
+        "active": true,
+        "x": -3.799999999999997
+      }
+    },
+    {
+      "name": "World loads and simulates without runtime errors",
+      "status": "passed",
+      "details": []
+    }
+  ],
+  "errors": [],
+  "environment": "Chromium software WebGL; deterministic 60 Hz steps using the same game physics. Not a real-phone performance measurement."
+}

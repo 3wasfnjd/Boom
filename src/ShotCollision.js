@@ -11,12 +11,19 @@ export function segmentBoxFraction(start,end,bounds,radius=0) {
   }
   return near;
 }
-export function traceShot(start,end,items,radius=0) {
+export function traceShot(start,end,items,radius=0,ground=null) {
   let fraction=Infinity,item=null;
   for(const candidate of items){
-    if(!candidate.active)continue;const t=segmentBoxFraction(start,end,candidate.bounds,radius);
+    if(!candidate.active)continue;
+    let t=segmentBoxFraction(start,end,candidate.bounds,radius);
+    if(t!==null&&candidate.inverseMatrix){
+      const m=candidate.inverseMatrix;
+      const local=p=>({x:m[0]*p.x+m[4]*p.y+m[8]*p.z+m[12],y:m[1]*p.x+m[5]*p.y+m[9]*p.z+m[13],z:m[2]*p.x+m[6]*p.y+m[10]*p.z+m[14]});
+      t=segmentBoxFraction(local(start),local(end),candidate.localBounds,radius);
+    }
     if(t!==null&&t<fraction){fraction=t;item=candidate;}
   }
-  if(end.y<radius&&start.y>=radius){const t=(start.y-radius)/(start.y-end.y);if(t<fraction){fraction=t;item={kind:'ground'};}}
+  const groundHit=ground?ground.trace(start,end,radius):(end.y<radius&&start.y>=radius?(start.y-radius)/(start.y-end.y):null);
+  if(groundHit!==null&&groundHit<fraction){fraction=groundHit;item={kind:'ground'};}
   return Number.isFinite(fraction)?{item,fraction}:null;
 }

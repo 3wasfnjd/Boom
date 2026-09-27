@@ -60,21 +60,29 @@ export class CombatSystem {
     const container=this.vehicle.container;
     container.updateMatrixWorld(true);this.mount.getWorldPosition(origin);this.lockedTarget=null;
     direction.copy(forward).applyQuaternion(container.quaternion).setY(0).normalize();
-    this.aimPoint.copy(origin).addScaledVector(direction,32);this.aimPoint.y=.75;
+    this.aimPoint.copy(origin).addScaledVector(direction,32);this.aimPoint.y=this.arena.environment.terrain.heightAt(this.aimPoint.x,this.aimPoint.z)+.75;
     if(input.mode==='mouse') {
       this.raycaster.setFromCamera(input.mouse,camera);
+      const groundHit=this.arena.environment.terrain.raycast(this.raycaster.ray);
+      aimPlane.constant=-(groundHit?groundHit.y+.75:.75);
       this.raycaster.ray.intersectPlane(aimPlane,this.aimPoint);
+      let nearest=groundHit?this.raycaster.ray.origin.distanceToSquared(groundHit):Infinity;
+      for(const target of this.arena.targets){
+        if(!target.active||!this.raycaster.ray.intersectBox(target.bounds,temp))continue;
+        const distance=this.raycaster.ray.origin.distanceToSquared(temp);
+        if(distance<nearest){nearest=distance;this.aimPoint.copy(temp);}
+      }
       // Limit range on the horizon, where a ground ray becomes almost parallel.
       temp.subVectors(this.aimPoint,origin);if(temp.length()>65)this.aimPoint.copy(origin).addScaledVector(temp.normalize(),65);
     }else if(input.mode==='stick') {
-      this.aimPoint.copy(origin).add(new THREE.Vector3(input.aim.x*32,0,input.aim.y*32));this.aimPoint.y=.75;
+      this.aimPoint.copy(origin).add(new THREE.Vector3(input.aim.x*32,0,input.aim.y*32));this.aimPoint.y=this.arena.environment.terrain.heightAt(this.aimPoint.x,this.aimPoint.z)+.75;
     }else {
       let nearest=28;
       for(const target of this.arena.targets) {
         if(!target.active)continue;
         temp.subVectors(target.position,origin);const distance=temp.length();
         if(distance>nearest||temp.clone().normalize().dot(direction)<.40)continue;
-        if(traceShot(origin,target.position,this.arena.blockers))continue;
+        if(traceShot(origin,target.position,this.arena.blockers,0,this.arena.environment.terrain))continue;
         nearest=distance;this.lockedTarget=target;this.aimPoint.copy(target.position);
       }
     }
@@ -130,7 +138,7 @@ export class CombatSystem {
         if(!target.active||target===hit)continue;
         const distance=point.distanceTo(target.position);if(distance>spec.splash)continue;
         // Cover also shields the area damage from shells and rockets.
-        if(traceShot(point,target.position,this.arena.blockers))continue;
+        if(traceShot(point,target.position,this.arena.blockers,0,this.arena.environment.terrain))continue;
         this.applyDamage(target,spec.damage*(1-distance/spec.splash)*.7,point);
       }
     }
@@ -143,7 +151,7 @@ export class CombatSystem {
     for(const shot of this.shots) {
       if(!shot.active)continue;
       shot.previous.copy(shot.mesh.position);shot.next.copy(shot.previous).addScaledVector(shot.velocity,dt);
-      const hit=traceShot(shot.previous,shot.next,items,shot.spec.radius);
+      const hit=traceShot(shot.previous,shot.next,items,shot.spec.radius,this.arena.environment.terrain);
       if(hit){shot.mesh.position.lerpVectors(shot.previous,shot.next,hit.fraction);this.impact(shot,hit.item);continue;}
       shot.mesh.position.copy(shot.next);shot.life-=dt;shot.trail-=dt;
       if(shot.kind==='rockets'&&shot.trail<=0){this.effect(shot.mesh.position,'#d6ae69',.30,.25);shot.trail=.05;}

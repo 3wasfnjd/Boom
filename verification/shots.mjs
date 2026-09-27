@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {Matrix4,Quaternion,Vector3,Box3} from 'three';
 import {segmentBoxFraction,traceShot} from '../src/ShotCollision.js';
 const point=(x,y,z)=>({x,y,z});
 const box=(id,z,kind='target')=>({id,kind,active:true,bounds:{min:point(-.5,0,z-.05),max:point(.5,1,z+.05)}});
@@ -13,4 +14,9 @@ assert.equal(segmentBoxFraction(point(0,.5,25),end,target.bounds),0,'Shot starti
 assert.equal(traceShot(point(.55,.5,0),point(.55,.5,40),[target],.1).item,target,'Projectile radius must count at a grazing edge');
 assert.equal(traceShot(point(0,1,0),point(0,-1,1),[]).item.kind,'ground','Ground must intercept downward shots');
 assert.equal(traceShot(start,point(0,.5,2),[target]),null,'Target beyond this segment must not be hit early');
-console.log('8 continuous shot-collision checks passed.');
+const transform=new Matrix4().compose(new Vector3(0,0,5),new Quaternion().setFromAxisAngle(new Vector3(0,1,0),Math.PI/4),new Vector3(1,1,1));
+const localBounds=new Box3(new Vector3(-.08,0,-2),new Vector3(.08,2,2));
+const gate={kind:'wall',active:true,localBounds,bounds:localBounds.clone().applyMatrix4(transform),inverseMatrix:transform.clone().invert().elements};
+assert.equal(traceShot(point(1.3,1,3.6),point(1.3,1,3.8),[gate]),null,'Open rotated gate must not block empty space inside its world AABB');
+assert.equal(traceShot(point(0,1,0),point(0,1,10),[gate]).item,gate,'Actual rotated gate surface must intercept a crossing shot');
+console.log('10 continuous shot-collision checks passed.');

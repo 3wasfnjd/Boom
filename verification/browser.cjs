@@ -11,7 +11,7 @@ async function launch(mobile){
  page.on('pageerror',e=>report.errors.push(e.stack));page.on('console',m=>{if(m.type()==='error')report.errors.push(m.text());});
  await page.route('http://boom.test/**',async route=>{
   const pathname=new URL(route.request().url()).pathname,file=path.join(root,pathname==='/'?'index.html':pathname);
-  const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.glb':'model/gltf-binary'};
+  const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.glb':'model/gltf-binary','.wasm':'application/wasm','.png':'image/png','.webp':'image/webp'};
   if(!fs.existsSync(file))return route.fulfill({status:404,body:'Missing'});
   return route.fulfill({path:file,contentType:types[path.extname(file)]||'application/octet-stream'});
  });
@@ -83,7 +83,7 @@ const reset=async page=>{await page.click('#reset');await step(page,90);};
   check('Touch cancellation clears steering, firing and braking',await page.evaluate(()=>!__BOOM__.input.drive.touchActive&&!__BOOM__.input.padFire&&!__BOOM__.input.braking));
   await touch('touchStart',[[1,joystick.x,joystick.y],[2,fire.x,fire.y]]);await page.evaluate(()=>window.dispatchEvent(new Event('blur')));
   check('Losing focus releases all held controls',await page.evaluate(()=>!__BOOM__.input.drive.touchActive&&!__BOOM__.input.padFire&&!__BOOM__.input.braking));await touch('touchCancel',[]);
-  await reset(page);await page.screenshot({path:path.join(root,'arena-mobile-preview.png')});report.screenshots.push('arena-mobile-preview.png');
+  await reset(page);await page.evaluate(()=>{const b=__BOOM__;b.renderer.setAnimationLoop(()=>b.renderer.render(b.scene,b.camera));});await page.screenshot({path:path.join(root,'arena-mobile-preview.png')});report.screenshots.push('arena-mobile-preview.png');
   await page.setViewportSize({width:844,height:390});await step(page,30);await page.screenshot({path:path.join(root,'arena-landscape-preview.png')});
   report.screenshots.push('arena-landscape-preview.png');
   check('Landscape resize preserves renderer and controls',await page.evaluate(()=>__BOOM__.camera.aspect>2&&document.querySelector('#aim-pad').getBoundingClientRect().bottom<=innerHeight));
