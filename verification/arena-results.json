@@ -1,0 +1,292 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "Desktop WebGL starts with six targets and four animated wheels",
+      "status": "passed"
+    },
+    {
+      "name": "Keyboard acceleration moves the car forward",
+      "status": "passed",
+      "details": {
+        "position": [
+          2.691531929348677e-15,
+          -1.176836406102666e-14,
+          6.053061568310503
+        ],
+        "speed": 1.3509413189192983
+      }
+    },
+    {
+      "name": "Steering changes heading while driving",
+      "status": "passed",
+      "details": {
+        "yaw": 1.3491701568077867
+      }
+    },
+    {
+      "name": "Handbrake reduces speed under the same throttle",
+      "status": "passed",
+      "details": {
+        "before": 1.3509413189192983,
+        "after": 0.8177231514892044
+      }
+    },
+    {
+      "name": "Reverse moves behind the starting line",
+      "status": "passed",
+      "details": {
+        "position": [
+          3.3171363556349218e-15,
+          -5.828670879282072e-15,
+          -10.6571118518674
+        ],
+        "speed": -0.8221826262359087
+      }
+    },
+    {
+      "name": "h9: loaded model drives with four wheels",
+      "status": "passed"
+    },
+    {
+      "name": "h9: weapon fires and destroys a target",
+      "status": "passed",
+      "details": {
+        "shots": 35,
+        "hits": 27,
+        "targets": [
+          {
+            "id": 0,
+            "health": 0,
+            "active": false
+          },
+          {
+            "id": 1,
+            "health": 0,
+            "active": false
+          },
+          {
+            "id": 2,
+            "health": 0,
+            "active": false
+          },
+          {
+            "id": 3,
+            "health": 100,
+            "active": true
+          },
+          {
+            "id": 4,
+            "health": 100,
+            "active": true
+          },
+          {
+            "id": 5,
+            "health": 100,
+            "active": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "h9: destroyed targets respawn",
+      "status": "passed"
+    },
+    {
+      "name": "h9: projectile and effect pools stay bounded",
+      "status": "passed",
+      "details": {
+        "geometry": 51,
+        "shots": 72,
+        "effects": 72
+      }
+    },
+    {
+      "name": "shas: loaded model drives with four wheels",
+      "status": "passed"
+    },
+    {
+      "name": "shas: weapon fires and destroys a target",
+      "status": "passed",
+      "details": {
+        "shots": 5,
+        "hits": 4,
+        "targets": [
+          {
+            "id": 0,
+            "health": 0,
+            "active": false
+          },
+          {
+            "id": 1,
+            "health": 0,
+            "active": false
+          },
+          {
+            "id": 2,
+            "health": 100,
+            "active": true
+          },
+          {
+            "id": 3,
+            "health": 100,
+            "active": true
+          },
+          {
+            "id": 4,
+            "health": 100,
+            "active": true
+          },
+          {
+            "id": 5,
+            "health": 100,
+            "active": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "shas: destroyed targets respawn",
+      "status": "passed"
+    },
+    {
+      "name": "shas: projectile and effect pools stay bounded",
+      "status": "passed",
+      "details": {
+        "geometry": 83,
+        "shots": 72,
+        "effects": 72
+      }
+    },
+    {
+      "name": "datsun: loaded model drives with four wheels",
+      "status": "passed"
+    },
+    {
+      "name": "datsun: weapon fires and destroys a target",
+      "status": "passed",
+      "details": {
+        "shots": 8,
+        "hits": 4,
+        "targets": [
+          {
+            "id": 0,
+            "health": 0,
+            "active": false
+          },
+          {
+            "id": 1,
+            "health": 0,
+            "active": false
+          },
+          {
+            "id": 2,
+            "health": 100,
+            "active": true
+          },
+          {
+            "id": 3,
+            "health": 100,
+            "active": true
+          },
+          {
+            "id": 4,
+            "health": 100,
+            "active": true
+          },
+          {
+            "id": 5,
+            "health": 100,
+            "active": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "datsun: destroyed targets respawn",
+      "status": "passed"
+    },
+    {
+      "name": "datsun: projectile and effect pools stay bounded",
+      "status": "passed",
+      "details": {
+        "geometry": 115,
+        "shots": 72,
+        "effects": 72
+      }
+    },
+    {
+      "name": "Mouse world aiming damages the pointed target",
+      "status": "passed"
+    },
+    {
+      "name": "A wall between muzzle and target blocks actual gun damage",
+      "status": "passed"
+    },
+    {
+      "name": "Reset clears motion, targets, hits and live shots",
+      "status": "passed"
+    },
+    {
+      "name": "Repeated vehicle switching reuses loaded GPU geometry",
+      "status": "passed",
+      "details": {
+        "before": 115,
+        "after": 115
+      }
+    },
+    {
+      "name": "Portrait touch controls have separate visible hit regions",
+      "status": "passed"
+    },
+    {
+      "name": "Real touch joystick drives the car",
+      "status": "passed"
+    },
+    {
+      "name": "Two fingers drive and fire simultaneously",
+      "status": "passed"
+    },
+    {
+      "name": "Dragging the fire pad rotates the turret",
+      "status": "passed",
+      "details": {
+        "yaw": -1.5705328288112521,
+        "stick": [
+          0.8571428571428571,
+          0
+        ],
+        "padFire": true,
+        "padPointer": 3
+      }
+    },
+    {
+      "name": "Touch handbrake works while driving and shooting",
+      "status": "passed"
+    },
+    {
+      "name": "Touch cancellation clears steering, firing and braking",
+      "status": "passed"
+    },
+    {
+      "name": "Losing focus releases all held controls",
+      "status": "passed"
+    },
+    {
+      "name": "Landscape resize preserves renderer and controls",
+      "status": "passed"
+    },
+    {
+      "name": "No browser runtime or asset errors",
+      "status": "passed",
+      "details": []
+    }
+  ],
+  "screenshots": [
+    "arena-preview.png",
+    "arena-mobile-preview.png",
+    "arena-landscape-preview.png"
+  ],
+  "errors": [],
+  "environment": "Chromium software WebGL; desktop 1280×800, touch 390×844 and landscape 844×390. No real-phone performance measurement."
+}

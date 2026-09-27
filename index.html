@@ -1,11 +1,30 @@
 <!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BOOM | تجهيز سيارات المطاردة</title>
-<style>
-*{box-sizing:border-box}body{margin:0;background:#171c1e;color:#ebeee7;font-family:Tahoma,Arial,sans-serif;overflow:hidden}header{position:absolute;top:0;right:0;left:0;padding:32px 38px;z-index:2;pointer-events:none}small{display:block;color:#c8b27e;font-size:11px;letter-spacing:3px;margin-bottom:12px}h1{margin:0;font-size:28px;font-weight:600}header p{font-size:13px;color:#b8c1bf;margin:12px 0}button{pointer-events:auto;position:absolute;left:36px;top:52px;background:#d7bb7e;border:0;color:#212724;padding:11px 20px;border-radius:5px;cursor:pointer;font-family:inherit}canvas{display:block;width:100vw;height:100vh}.labels{position:absolute;display:flex;direction:ltr;left:0;right:0;bottom:52px;pointer-events:none}.labels div{width:33.333%;text-align:center;direction:rtl}.labels b{font-size:20px}.labels span{display:block;color:#b8c1bf;font-size:13px;margin-top:10px}footer{position:absolute;bottom:13px;right:25px;left:25px;text-align:center;font-size:11px;color:#8a9492}#error{color:#ffd9d9;position:absolute;inset:40% 5%;text-align:center;white-space:pre-wrap} @media(max-width:650px){header{padding:20px}h1{font-size:20px}header p{font-size:11px;max-width:70%}button{top:75px;left:20px;font-size:11px;padding:8px}.labels b{font-size:12px}.labels span{font-size:9px}.labels{bottom:50px}footer{font-size:9px}}
-</style>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"}}</script>
-</head><body><header><small>ABODEN GAMES / VEHICLE CONCEPT 01</small><h1>BOOM • سيارات المطاردة</h1><p>موديلات موتري الأصلية مع إضافات قتالية أولية قابلة للتبديل</p><button id="toggle">عرض السيارات بدون إضافات</button></header>
-<div class="labels"><div><b>هافال H9</b><span>رشاش مزدوج على السقف</span></div><div><b>شاص</b><span>مدفع في الحوض الخلفي</span></div><div><b>ددسن</b><span>منصة صواريخ في الحوض</span></div></div>
-<footer>معاينة للموديلات • الأسلحة إضافات بصرية فقط • لم يُبنَ نظام القتال بعد</footer><div id="error"></div>
-<script type="module" src="src/preview.js"></script></body></html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#202926"><meta name="description" content="BOOM — ساحة تجربة سيارات موتري بأسلحة وقيادة هجولة">
+<title>BOOM • ساحة التجربة</title>
+<link rel="icon" type="image/svg+xml" href="./icon.svg">
+<link rel="stylesheet" href="./src/game.css?v=range-1">
+</head>
+<body>
+<canvas id="game" aria-label="ساحة تجربة السيارات"></canvas>
+<header class="game-hud topbar">
+ <div class="brand"><b>BOOM</b><small>ABODEN GAMES</small></div>
+ <div class="cars" role="group" aria-label="اختيار السيارة">
+  <button data-car="h9" aria-pressed="true">هافال</button><button data-car="shas" aria-pressed="false">شاص</button><button data-car="datsun" aria-pressed="false">ددسن</button>
+ </div>
+ <button id="reset" class="icon-button" aria-label="إعادة السيارة والأهداف">↻</button>
+</header>
+<aside class="game-hud readout"><span id="weapon-name">رشاش مزدوج</span><span id="hit-count">إصابات ٠</span></aside>
+<div id="aim-mark" aria-hidden="true"><i></i></div>
+<div id="hit-mark" aria-hidden="true">×</div>
+<div id="hint">WASD أو الأسهم للقيادة · الماوس للتصويب والإطلاق · B للهاندبريك</div>
+<div class="game-hud actions">
+ <button id="brake" aria-label="هاندبريك">هاندبريك</button>
+ <div id="aim-pad" role="button" tabindex="0" aria-label="اضغط للإطلاق أو اسحب للتصويب"><div class="aim-ring"><span id="aim-knob">إطلاق</span></div></div>
+</div>
+<div id="loading"><b>BOOM</b><span id="loading-message">تجهيز ساحة التجربة…</span><div class="load-track"><i></i></div><button id="retry" hidden>إعادة المحاولة</button></div>
+<script>window.addEventListener('error',function(){var e=document.getElementById('loading');if(e&&!e.hidden){document.getElementById('loading-message').textContent='تعذر تشغيل الساحة. أعد المحاولة.';document.getElementById('retry').hidden=false;}});document.getElementById('retry').onclick=function(){location.reload()};</script>
+<script type="module" src="./app.min.js?v=range-1"></script>
+</body></html>

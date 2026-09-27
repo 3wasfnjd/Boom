@@ -1,2 +1,4 @@
 *.glb binary
 *.png binary
+
+app.min.js linguist-generated=true -whitespace

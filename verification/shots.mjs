@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {segmentBoxFraction,traceShot} from '../src/ShotCollision.js';
+const point=(x,y,z)=>({x,y,z});
+const box=(id,z,kind='target')=>({id,kind,active:true,bounds:{min:point(-.5,0,z-.05),max:point(.5,1,z+.05)}});
+const start=point(0,.5,0),end=point(0,.5,40);
+const target=box('target',25),wall=box('wall',12,'wall');
+assert.equal(traceShot(start,end,[target,wall]).item,wall,'Nearest wall must shield target, regardless of list order');
+assert.equal(traceShot(start,end,[target]).item,target,'Fast shot must hit a thin box crossed within one frame');
+wall.active=false;
+assert.equal(traceShot(start,end,[wall,target]).item,target,'Inactive bodies must not intercept shots');
+assert.equal(traceShot(point(1,.5,0),point(1,.5,40),[target]),null,'Parallel ray outside box must miss');
+assert.equal(segmentBoxFraction(point(0,.5,25),end,target.bounds),0,'Shot starting inside box must register at its origin');
+assert.equal(traceShot(point(.55,.5,0),point(.55,.5,40),[target],.1).item,target,'Projectile radius must count at a grazing edge');
+assert.equal(traceShot(point(0,1,0),point(0,-1,1),[]).item.kind,'ground','Ground must intercept downward shots');
+assert.equal(traceShot(start,point(0,.5,2),[target]),null,'Target beyond this segment must not be hit early');
+console.log('8 continuous shot-collision checks passed.');
