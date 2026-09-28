@@ -142,7 +142,7 @@ export class MotriAtmosphere {
     this.lampPools.material.uniforms.night.value=night;this.lampPools.visible=night>.02;
     this.environment.lampMaterial.color.setRGB(1.1+night*1.1,.66+night*.5,.26);
     if(this.audioUnlocked){
-      this.audio.volume=state.rain*.16;
+      this.audio.volume=state.rain*.04;
       if(state.rain<.02||document.hidden)this.audio.pause();
       else if(this.audio.paused&&!this.audioPending){this.audioPending=true;this.audio.play().catch(()=>{}).finally(()=>{this.audioPending=false;});}
     }

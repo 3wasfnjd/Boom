@@ -15,3 +15,34 @@ test('recover cannot heal; disconnect grace expires; room restart retains health
 test('actual world map contains terrain, bridge and rest-house blockers',()=>{const w=new CollisionWorld();assert.equal(w.data.heights.length,9409);assert.equal(w.blockers.length,109);assert.ok(w.heightAt(20,-20)<-.6);assert.ok(w.blocked([13,0,-20],[27,0,-20]));});
 test('cannon and rockets use the selected vehicle weapon on the server',()=>{for(const [car,damage] of [['shas',35],['datsun',27.5]]){const f=fixture(),a=f.join('A'),b=f.join('B'),p=f.room.players.get(a.id),enemy=f.room.players.get(b.id);p.body=car;pose(p,[0,.6,0]);pose(enemy,[0,.6,7]);fire(f,a,1,[0,.8,1]);f.advance(500);assert.equal(enemy.hp,100-damage,car);assert.ok(f.events.some(e=>e.type==='explosion'));}});
 test('separate rooms do not exchange players, damage or crates',()=>{const a=fixture(),b=fixture(),p=a.join('A'),q=b.join('B');a.room.message(p.id,{type:'crate'});a.advance(500);assert.equal(b.room.snapshot().players.length,1);assert.equal(b.room.snapshot().crates.length,0);assert.equal(b.room.players.get(q.id).hp,100);});
+test('arena supply heals only the final-hit player, once, and its blast is harmless',()=>{
+ const f=fixture(),a=f.join('A'),b=f.join('B'),pa=f.room.players.get(a.id),pb=f.room.players.get(b.id);
+ const target={id:0,p:[0,.6,0],hp:100,respawn:0};f.room.targets.push(target);pose(pa,[0,.6,0]);pose(pb,[0,.6,1]);pa.hp=20;pb.hp=30;
+ f.room.targetDamage(target,90,a.id);assert.equal(pa.hp,20);assert.equal(pb.hp,30);
+ f.room.targetDamage(target,10,b.id);assert.equal(pb.hp,100);assert.equal(pa.hp,20);assert.equal(pb.kills,0);assert.equal(target.hp,0);
+ pb.hp=40;f.room.targetDamage(target,100,b.id);assert.equal(pb.hp,40);
+ assert.equal(f.room.message(a.id,{type:'heal',hp:100}),false);assert.equal(pa.hp,20);
+ f.advance(6000);assert.equal(target.hp,100);f.room.targetDamage(target,100,a.id);f.advance(50);
+ assert.equal(pa.hp,100);assert.equal(pb.hp,40);assert.equal(f.room.snapshot().players.find(p=>p.id===a.id).hp,100);
+ assert.equal(f.room.save().players.find(p=>p.id===a.id).hp,100);
+});
+test('each vehicle can restore health by shooting an arena supply',()=>{
+ for(const body of ['h9','shas','datsun']){
+  const f=fixture(),a=f.join('A'),p=f.room.players.get(a.id);p.body=body;p.hp=23;pose(p,[0,.6,0]);
+  f.room.targets.push({id:0,p:[0,.8,5],hp:10,respawn:0});assert.equal(fire(f,a,1,[0,.8,1]),true);f.advance(300);
+  assert.equal(f.room.targets[0].hp,0,body);assert.equal(p.hp,100,body);assert.ok(f.events.some(e=>e.type==='explosion'&&e.id==='target:0'));
+ }
+});
+test('supply rewards cannot resurrect dead or disconnected attackers',()=>{
+ const f=fixture(),a=f.join('A'),p=f.room.players.get(a.id);p.hp=0;p.respawnAt=99999;
+ f.room.targetDamage({id:0,p:[0,0,0],hp:10},10,a.id);assert.equal(p.hp,0);
+ p.hp=25;f.room.leave(a.id);f.room.targetDamage({id:1,p:[0,0,0],hp:10},10,a.id);assert.equal(p.hp,25);
+ assert.doesNotThrow(()=>f.room.targetDamage({id:2,p:[0,0,0],hp:10},10,'departed'));
+});
+test('rocket volley permits six timed rockets, rejects a seventh and enforces reload',()=>{
+ const f=fixture(),a=f.join('A'),p=f.room.players.get(a.id);p.body='datsun';pose(p,[0,.6,0]);
+ assert.equal(fire(f,a,1,[0,.8,1]),true);assert.equal(fire(f,a,2,[0,.8,1]),false);
+ for(let seq=2;seq<=6;seq++){f.advance(150);assert.equal(fire(f,a,seq,[0,.8,1]),true);}
+ f.advance(150);assert.equal(fire(f,a,7,[0,.8,1]),false);assert.equal(f.events.filter(e=>e.type==='shot').length,6);
+ f.advance(1000);assert.equal(fire(f,a,7,[0,.8,1]),true);p.hp=0;p.respawnAt=99999;f.advance(150);assert.equal(fire(f,a,8,[0,.8,1]),false);
+});

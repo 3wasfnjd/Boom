@@ -3,6 +3,7 @@ import {RAPIER,PHYSICS_SCALE} from './PhysicsWorld.js';
 import {BattleRoom} from '../server/BattleRoom.js';
 import {randomId,PROTOCOL,cleanRoom,cleanName,CRATE_COOLDOWN_MS} from '../shared/BattleRules.js';
 import {MotriFireballs} from './MotriFireballs.js';
+import {PlayerLocator} from './PlayerLocator.js';
 const uuid=randomId;
 export class BattleClient {
  constructor({scene,world,arena,vehicle,combat,input,camera,loadCar,selectCar}){
@@ -65,10 +66,11 @@ export class BattleClient {
  }
  addRemote(p){const group=new THREE.Group();this.scene.add(group);const tag=document.createElement('div');tag.className='player-tag';const name=document.createElement('span');name.textContent=p.name;const track=document.createElement('i'),fill=document.createElement('b');track.append(fill);tag.append(name,track);document.body.append(tag);
   const body=this.world.native.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(...p.p.map(v=>v*2)));this.world.native.createCollider(RAPIER.ColliderDesc.cuboid(.48*2,.35*2,.8*2).setFriction(.35).setCollisionGroups((2<<16)|5),body);
-  const r={id:p.id,group,tag,fill,name,frames:[],body,car:null,data:p,hp:p.hp,target:{kind:'player',id:p.id,active:true,position:group.position,bounds:new THREE.Box3()}};group.position.fromArray(p.p);group.quaternion.fromArray(p.q);this.remotes.set(p.id,r);this.installRemote(r,p.body);return r;
+  const distance=document.createElement('small');tag.append(distance);
+  const r={id:p.id,group,tag,fill,name,distance,locator:new PlayerLocator(),frames:[],body,car:null,data:p,hp:p.hp,target:{kind:'player',id:p.id,active:true,position:group.position,bounds:new THREE.Box3()}};group.position.fromArray(p.p);group.quaternion.fromArray(p.q);this.remotes.set(p.id,r);this.installRemote(r,p.body);return r;
  }
  async installRemote(r,id){r.car=id;const token=uuid();r.loadToken=token;try{const gltf=await this.loadCar(id);if(r.loadToken!==token||!this.remotes.has(r.id))return;r.group.clear();const model=gltf.scene.clone(true);model.scale.multiplyScalar(.5);model.getObjectByName('body').position.y=0;model.traverse(n=>{if(n.isMesh){n.castShadow=false;n.receiveShadow=true;}});r.group.add(model);r.model=model;r.wheels=['wheel-front-left','wheel-front-right','wheel-back-left','wheel-back-right'].map(n=>model.getObjectByName(n));r.yaw=model.getObjectByName('weapon-yaw');r.pitch=model.getObjectByName('weapon-pitch');}catch(error){console.error('Remote car failed to load',error);}}
- removeRemote(id){const r=this.remotes.get(id);if(!r)return;r.loadToken=null;r.group.removeFromParent();r.tag.remove();this.world.removeBody(r.body);this.remotes.delete(id);}
+ removeRemote(id){const r=this.remotes.get(id);if(!r)return;r.loadToken=null;r.group.removeFromParent();r.tag.remove();r.locator.remove();this.world.removeBody(r.body);this.remotes.delete(id);}
  updateCrates(crates){const ids=new Set();for(const c of crates){ids.add(c.id);let mesh=this.crateMeshes.get(c.id);if(!mesh){mesh=this.arena.targets[0].crate.clone();mesh.material=mesh.material.clone();mesh.scale.multiplyScalar(.5);mesh.castShadow=true;this.scene.add(mesh);this.crateMeshes.set(c.id,mesh);}mesh.userData.state=c;mesh.position.fromArray(c.p);mesh.material.emissive.setHex(c.fuseAt?0x771500:0);}
   for(const [id,mesh] of this.crateMeshes)if(!ids.has(id)){mesh.removeFromParent();mesh.material.dispose();this.crateMeshes.delete(id);}
  }
@@ -84,6 +86,9 @@ export class BattleClient {
    if(r.wheels)for(let i=0;i<4;i++){r.wheels[i].position.y=r.data.wy[i];r.wheels[i].rotation.set(r.data.spin,i<2?r.data.steer:0,0,'YXZ');}
    if(r.yaw)r.yaw.rotation.y=r.data.yaw;if(r.pitch)r.pitch.rotation.x=r.data.pitch;
    projected.copy(r.group.position);projected.y+=1.5;projected.project(this.camera);r.tag.hidden=r.hp<=0||projected.z< -1||projected.z>1||Math.abs(projected.x)>1||Math.abs(projected.y)>1;r.tag.style.left=`${(projected.x*.5+.5)*innerWidth}px`;r.tag.style.top=`${(-projected.y*.5+.5)*innerHeight}px`;r.fill.style.transform=`scaleX(${r.hp/100})`;r.fill.classList.toggle('low',r.hp<35);r.name.textContent=r.data.name;
+   r.distance.textContent=`${Math.round(r.group.position.distanceTo(this.vehicle.container.position))} م`;
+   r.locator.update(r.group.position,this.vehicle.container.position,this.camera,r.data.name,r.hp>0);
+   if(!r.locator.element.hidden)r.tag.hidden=true;
   }
   if(this.self){this.killCount.textContent=`القتل ${(this.self.kills||0).toLocaleString('ar',{numberingSystem:'arab'})}`;const hp=this.self.hp;this.health.style.transform=`scaleX(${hp/100})`;this.health.classList.toggle('low',hp<35);this.healthText.textContent=`${Math.ceil(hp)} / 100`;const wait=Math.max(0,(this.self.crateAt-this.serverNow())/1000);this.crateButton.disabled=!this.canAct||wait>0;this.crateButton.textContent=wait>0?`صندوق ${Math.ceil(wait)}`:'صندوق ↧';this.crateButton.style.setProperty('--ready',String(1-wait/(CRATE_COOLDOWN_MS/1000)));if(hp<=0)this.notice.textContent=`تحطمت السيارة · عودة خلال ${Math.max(1,Math.ceil((this.self.respawnAt-this.serverNow())/1000))}`;else if(this.ready)this.notice.textContent='';}
  }

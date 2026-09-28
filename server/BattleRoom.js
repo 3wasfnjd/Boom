@@ -43,7 +43,14 @@ export class BattleRoom {
  }
  fire(p,m,now){const spec=WEAPONS[p.body];if(p.hp<=0||now<p.fireAt||!validArray(m.origin,3,80)||!validArray(m.direction,3,1.01)||dist(m.origin,p.p)>2.5||!Number.isSafeInteger(m.seq)||m.seq<=p.lastShotSeq)return false;
   const length=Math.hypot(...m.direction);if(length<.95||length>1.05||this.world.blocked([p.p[0],p.p[1]+.2,p.p[2]],m.origin,.02))return false;
-  this.dirty=true;p.fireAt=now+spec.interval*1000-2;p.lastShotSeq=m.seq;p.shieldUntil=0;
+  if(spec.burst){
+   if(p.burstBody!==p.body||!p.burstLeft||now>=p.burstUntil){
+    if(now<(p.volleyAt||0)-2)return false;
+    p.burstBody=p.body;p.burstLeft=spec.burst;p.burstUntil=p.volleyAt=now+spec.interval*1000;
+   }
+   p.burstLeft--;p.fireAt=p.burstLeft?now+spec.burstInterval*1000-15:p.volleyAt-2;
+  }else{p.burstLeft=0;p.fireAt=now+spec.interval*1000-2;}
+  this.dirty=true;p.lastShotSeq=m.seq;p.shieldUntil=0;
   const shot={id:`${p.id}:${m.seq}`,owner:p.id,body:p.body,p:[...m.origin],v:m.direction.map(n=>n/length*spec.speed),life:spec.life};this.shots.push(shot);this.event('shot',{shot});return true;
  }
  dropCrate(p,now){if(p.hp<=0||now<p.crateAt||this.crates.filter(c=>c.owner===p.id).length>=3)return false;
@@ -57,7 +64,13 @@ export class BattleRoom {
   if(p.hp===0){p.deaths++;p.respawnAt=this.now()+RESPAWN_MS;p.v=[0,0,0];const attacker=this.players.get(owner);if(attacker&&attacker!==p)attacker.kills++;this.event('destroyed',{id:p.id,owner,position:p.p,respawnAt:p.respawnAt});}
   this.event('damage',{id:p.id,owner,hp:p.hp,position,kick,respawnAt:p.respawnAt});
  }
- targetDamage(target,damage,owner){if(target.hp<=0)return;target.hp=Math.max(0,target.hp-damage);this.dirty=true;if(!target.hp){target.respawn=this.now()+6000;this.explode(target.p,3.1,45,owner,'target:'+target.id);}this.event('target',{id:target.id,hp:target.hp,respawn:target.respawn,owner,position:target.p});}
+ targetDamage(target,damage,owner){if(target.hp<=0)return;target.hp=Math.max(0,target.hp-damage);this.dirty=true;if(!target.hp){
+  target.respawn=this.now()+6000;
+  // Arena supplies heal the player landing the final hit. The explosion is
+  // visual only; thrown combat crates still use the damaging explode() path.
+  const player=this.players.get(owner);if(player?.connected&&player.hp>0)player.hp=MAX_HEALTH;
+  this.event('explosion',{id:'target:'+target.id,position:target.p,radius:3.1});
+ }this.event('target',{id:target.id,hp:target.hp,respawn:target.respawn,owner,position:target.p});}
  explode(position,radius,damage,owner,id){this.event('explosion',{id,position,radius});for(const p of this.players.values()){const d=dist(p.p,position);if(d>radius||this.world.blocked([position[0],position[1]+.2,position[2]],[p.p[0],p.p[1]+.2,p.p[2]]))continue;this.hurt(p,damage*Math.max(.1,1-d/radius),owner,position,blastKick(position,p.p,radius,4));}
   for(const target of this.targets)if(target.hp>0&&dist(target.p,position)<radius&&!this.world.blocked(position,target.p))this.targetDamage(target,damage*(1-dist(target.p,position)/radius),owner);
   for(const c of this.crates)if(!c.fuseAt&&c.id!==id&&dist(c.p,position)<radius)c.fuseAt=this.now()+400;
@@ -76,9 +89,9 @@ export class BattleRoom {
   for(const shot of this.shots){const spec=WEAPONS[shot.body],next=shot.p.map((v,i)=>v+shot.v[i]*dt),items=[...players.filter(p=>p.id!==shot.owner).map(p=>this.world.playerCollider(p)),...this.targets.filter(t=>t.hp>0).map(t=>({kind:'target',id:t.id,active:true,bounds:box(t.p,[.65,.65,.65])})),...this.crates.map(c=>({kind:'crate',id:c.id,active:true,bounds:box(c.p,[.34,.34,.34])}))];const hit=this.world.traceAll(shot.p,next,items,spec.radius);
    if(hit){shot.p=shot.p.map((v,i)=>v+(next[i]-v)*hit.fraction);shot.life=0;const item=hit.item;
     if(item.kind==='player'){const p=this.players.get(item.id),n=Math.hypot(...shot.v)||1;this.hurt(p,spec.damage*.5,shot.owner,shot.p,shot.v.map((v,i)=>v/n*(spec.splash?.9:.10)+(i===1&&spec.splash?.25:0)));}
-    if(item.kind==='target')this.targetDamage(this.targets.find(t=>t.id===item.id),spec.damage,shot.owner);
     if(item.kind==='crate'){const c=this.crates.find(c=>c.id===item.id);if(c&&!c.fuseAt)c.fuseAt=now+400;}
     if(spec.splash>0){this.event('explosion',{id:shot.id,position:shot.p,radius:spec.splash});for(const p of players)if(p.id!==item.id&&dist(p.p,shot.p)<spec.splash&&!this.world.blocked(shot.p,p.p))this.hurt(p,spec.damage*.35*(1-dist(p.p,shot.p)/spec.splash),shot.owner,shot.p,blastKick(shot.p,p.p,spec.splash,1.5));}
+    if(item.kind==='target')this.targetDamage(this.targets.find(t=>t.id===item.id),spec.damage,shot.owner);
     this.event('impact',{id:shot.id,position:shot.p,large:spec.splash>0});
    }else{shot.p=next;shot.life-=dt;}
   }this.shots=this.shots.filter(s=>s.life>0).slice(-144);

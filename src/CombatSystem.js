@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {traceShot} from './ShotCollision.js';
+import {BattleMusic} from './BattleMusic.js';
 
 import {WEAPONS} from '../shared/BattleRules.js';
 export {WEAPONS};
@@ -11,7 +12,7 @@ const wrap=angle=>Math.atan2(Math.sin(angle),Math.cos(angle));
 // All shots and flashes are bounded pools. Switching cars reuses these pools.
 export class CombatSystem {
   constructor(scene,arena,onHit) {
-    this.scene=scene;this.arena=arena;this.onHit=onHit;this.cooldown=0;this.serial=0;this.shotsFired=0;this.shots=[];this.effects=[];this.recoil=0;
+    this.scene=scene;this.arena=arena;this.onHit=onHit;this.cooldown=0;this.serial=0;this.shotsFired=0;this.shots=[];this.effects=[];this.recoil=0;this.burstRemaining=0;this.burstTimer=0;
     this.aimPoint=new THREE.Vector3();this.lockedTarget=null;this.raycaster=new THREE.Raycaster();
     const geometries={
       machinegun:new THREE.BoxGeometry(.035,.035,.65),
@@ -20,7 +21,8 @@ export class CombatSystem {
     };
     for(const kind of Object.keys(geometries)) {
       const material=new THREE.MeshBasicMaterial({color:kind==='machinegun'?'#ffeab1':kind==='cannon'?'#ffc05d':'#ffdc86'});
-      for(let i=0;i<24;i++) {
+      // Two six-rocket volleys for each of the six players, still a fixed pool.
+      for(let i=0;i<(kind==='rockets'?72:24);i++) {
         const mesh=new THREE.Mesh(geometries[kind],material);mesh.visible=false;scene.add(mesh);
         this.shots.push({kind,mesh,active:false,velocity:new THREE.Vector3(),previous:new THREE.Vector3(),next:new THREE.Vector3(),life:0,trail:0,spec:null});
       }
@@ -38,20 +40,22 @@ export class CombatSystem {
       try {
         if(!this.audio) {
           const Audio=window.AudioContext||window.webkitAudioContext;
-          if(Audio){this.audio=new Audio();this.noise=this.audio.createBuffer(1,Math.ceil(this.audio.sampleRate*.16),this.audio.sampleRate);const data=this.noise.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*(1-i/data.length);}
+          if(Audio){this.audio=new Audio();this.music=new BattleMusic(this.audio);this.noise=this.audio.createBuffer(1,Math.ceil(this.audio.sampleRate*.16),this.audio.sampleRate);const data=this.noise.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*(1-i/data.length);}
         }
-        if(this.audio?.state==='suspended')this.audio.resume().catch(()=>{});
+        if(this.audio?.state==='suspended')this.audio.resume().then(()=>this.music.start()).catch(()=>{});
+        else if(this.audio?.state==='running')this.music.start();
       }catch{/* Audio is optional; driving and shooting remain available. */}
     };
     window.addEventListener('pointerdown',unlock);window.addEventListener('keydown',unlock);
-    document.addEventListener('visibilitychange',()=>{if(document.hidden&&this.audio?.state==='running')this.audio.suspend().catch(()=>{});});
+    window.addEventListener('blur',()=>{this.burstRemaining=0;});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){this.burstRemaining=0;this.music?.stop();if(this.audio?.state==='running')this.audio.suspend().catch(()=>{});}else if(this.audio)this.audio.resume().then(()=>this.music.start()).catch(()=>{});});
   }
   bind(vehicle,id) {
     this.vehicle=vehicle;this.spec=WEAPONS[id];
     this.mount=vehicle.container.getObjectByName('mount-primary');this.yaw=vehicle.container.getObjectByName('weapon-yaw');this.pitch=vehicle.container.getObjectByName('weapon-pitch');
     this.muzzles=[];this.pitch.traverse(node=>{if(node.name.startsWith('muzzle-'))this.muzzles.push(node);});
     if(!this.muzzles.length)throw Error('Weapon muzzle missing');
-    this.pitchRestZ=this.pitch.position.z;this.recoil=0;this.cooldown=0;this.serial=0;
+    this.pitchRestZ=this.pitch.position.z;this.recoil=0;this.cooldown=0;this.serial=0;this.burstRemaining=0;
   }
   aim(dt,input,camera) {
     const container=this.vehicle.container;
@@ -152,7 +156,10 @@ export class CombatSystem {
   }
   update(dt,input,camera) {
     this.aim(dt,input,camera);this.cooldown=Math.max(0,this.cooldown-dt);
-    if(input.fire&&this.cooldown<=0){this.shoot();this.cooldown=this.spec.interval;}
+    const blocked=(this.network&&!this.network.canAct)||document.getElementById('room-dialog')?.open;
+    if(blocked)this.burstRemaining=0;
+    if(!blocked&&input.fire&&this.cooldown<=0&&!this.burstRemaining){this.burstRemaining=this.spec.burst||1;this.burstTimer=0;this.cooldown=this.spec.interval;}
+    if(this.burstRemaining){this.burstTimer-=dt;if(this.burstTimer<=0){this.shoot();this.burstRemaining--;this.burstTimer=this.spec.burstInterval||0;}}
     const items=[...this.arena.blockers,...this.arena.targets,...(this.network?.targets()||[])];
     for(const shot of this.shots) {
       if(!shot.active)continue;
@@ -172,6 +179,6 @@ export class CombatSystem {
   clear() {
     for(const shot of this.shots)shot.active=shot.mesh.visible=false;
     for(const fx of this.effects){fx.life=0;fx.sprite.visible=false;}
-    this.cooldown=0;this.recoil=0;this.shotsFired=0;
+    this.cooldown=0;this.recoil=0;this.shotsFired=0;this.burstRemaining=0;
   }
 }

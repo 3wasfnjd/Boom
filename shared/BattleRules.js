@@ -2,7 +2,7 @@ export const PROTOCOL=1,MAX_PLAYERS=6,MAX_HEALTH=100,RESPAWN_MS=5000,SHIELD_MS=2
 export const WEAPONS={
  h9:{kind:'machinegun',label:'رشاش مزدوج',interval:.11,speed:70,damage:12,radius:.035,life:1,splash:0},
  shas:{kind:'cannon',label:'مدفع',interval:.85,speed:34,damage:70,radius:.10,life:2,splash:1.8},
- datsun:{kind:'rockets',label:'قاذف صواريخ',interval:.55,speed:26,damage:55,radius:.09,life:2.5,splash:2.2}
+ datsun:{kind:'rockets',label:'رشقة ٦ صواريخ',interval:1.8,burst:6,burstInterval:.14,speed:26,damage:55,radius:.09,life:2.5,splash:2.2}
 };
 export const SPAWNS=[[-2,.8,-22],[2,.8,-22],[6,.8,-22],[-2,.8,-28],[2,.8,-28],[6,.8,-28]];
 export const cleanName=v=>String(v||'لاعب').replace(/[^\p{L}\p{N} _-]/gu,'').trim().slice(0,14)||'لاعب';

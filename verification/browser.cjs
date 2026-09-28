@@ -42,7 +42,7 @@ const reset=async page=>{await page.click('#reset');await step(page,90);};
    check(`${id}: weapon fires and destroys a target`,fired.shotsFired>0&&fired.hits>0&&fired.targets.some(target=>!target.active),{shots:fired.shotsFired,hits:fired.hits,targets:fired.targets});
    await step(page,540);check(`${id}: destroyed targets respawn`,(await state(page)).targets.filter(t=>fired.targets.some(previous=>previous.id===t.id&&!previous.active)).every(t=>t.active&&t.health===100));
    const retained=await page.evaluate(()=>({geometry:__BOOM__.renderer.info.memory.geometries,shots:__BOOM__.combat.shots.length,effects:__BOOM__.combat.effects.length}));
-   check(`${id}: projectile and effect pools stay bounded`,retained.shots===72&&retained.effects===72,retained);
+   check(`${id}: projectile and effect pools stay bounded`,retained.shots===120&&retained.effects===72,retained);
   }
   await page.click('[data-car="h9"]');await page.waitForFunction(()=>__BOOM__.snapshot().car==='h9');await reset(page);
   const targetPoint=await page.evaluate(()=>{const p=__BOOM__.arena.targets[0].position.clone().project(__BOOM__.camera);return {x:(p.x*.5+.5)*innerWidth,y:(-p.y*.5+.5)*innerHeight};});
