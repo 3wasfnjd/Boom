@@ -14,7 +14,7 @@ const axis=(value,power)=>Math.sign(value)*Math.pow(clamp((Math.abs(value)-.08)/
 export class MotriControls {
  constructor(){
   this.keys={};this.touchActive=false;this.touchDirX=this.touchDirY=0;this.pointer=null;
-  window.addEventListener('keydown',e=>{if(!e.target.matches('input,textarea'))this.keys[e.code]=true;});window.addEventListener('keyup',e=>{this.keys[e.code]=false;});
+  window.addEventListener('keydown',e=>{if(!e.target.closest?.('input,textarea,select,[contenteditable]'))this.keys[e.code]=true;});window.addEventListener('keyup',e=>{this.keys[e.code]=false;});
   this.setupTouchUI();
   window.addEventListener('blur',()=>this.release());window.addEventListener('resize',()=>this.release());document.addEventListener('visibilitychange',()=>{if(document.hidden)this.release();});
  }

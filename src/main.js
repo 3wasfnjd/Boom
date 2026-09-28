@@ -78,7 +78,7 @@ async function start() {
   }
   document.getElementById('reset').addEventListener('click',reset);
   document.querySelectorAll('[data-car]').forEach(button=>button.addEventListener('click',()=>selectCar(button.dataset.car)));
-  window.addEventListener('keydown',event=>{if(event.repeat)return;if(event.code==='KeyR')reset();const car={Digit1:'h9',Digit2:'shas',Digit3:'datsun'}[event.code];if(car)selectCar(car);});
+  window.addEventListener('keydown',event=>{if(event.repeat||event.target.closest?.('input,textarea,select,[contenteditable]'))return;if(event.code==='KeyR')reset();const car={Digit1:'h9',Digit2:'shas',Digit3:'datsun'}[event.code];if(car)selectCar(car);});
   function moveCamera(dt) {
     const velocity=vehicle.body.linvel(),heading=vehicle.heading;
     const delta=Math.atan2(Math.sin(heading-cameraHeading),Math.cos(heading-cameraHeading));

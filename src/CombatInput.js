@@ -21,7 +21,7 @@ export class CombatInput {
     canvas.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0)return;readMouse(e);this.mouseAiming=true;this.mouseFire=true;canvas.setPointerCapture(e.pointerId);});
     for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,()=>this.mouseFire=false);
     canvas.addEventListener('contextmenu',e=>e.preventDefault());
-    window.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();});
+    window.addEventListener('keydown',e=>{if(e.target.closest?.('input,textarea,select,[contenteditable]'))return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();});
     pad.addEventListener('keydown',e=>{if(e.code==='Enter')this.padFire=true;});pad.addEventListener('keyup',()=>this.padFire=false);
     this.release=()=>{this.drive.release();this.mouseFire=false;this.mouseAiming=false;resetPad();resetBrake();};
     window.addEventListener('blur',this.release);document.addEventListener('visibilitychange',()=>{if(document.hidden)this.release();});
