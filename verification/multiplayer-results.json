@@ -8,8 +8,8 @@
         "peers": 1,
         "models": 1,
         "self": {
-          "id": "ee7eee9c-b920-457e-9c5b-80de6235f41e",
-          "name": "لاعب 704",
+          "id": "95945df5-b26d-4c9c-b16b-c8fe37ccd7d1",
+          "name": "لاعب 727",
           "body": "h9",
           "p": [
             -2,
@@ -35,19 +35,19 @@
           ],
           "steer": 0,
           "spin": 0,
-          "yaw": 1.6715644209715292,
-          "pitch": 0.02847351795925396,
+          "yaw": 1.6715646619575486,
+          "pitch": 0.028473514357160164,
           "hp": 100,
           "alive": true,
-          "shieldUntil": 1790592252765,
+          "shieldUntil": 1790602602810,
           "respawnAt": 0,
           "crateAt": 0,
           "kills": 0,
           "deaths": 0,
           "connected": true,
-          "seq": 50
+          "seq": 48
         },
-        "tag": "لاعب 477"
+        "tag": "لاعب 173"
       }
     },
     {

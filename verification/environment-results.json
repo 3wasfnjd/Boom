@@ -1,0 +1,371 @@
+{
+  "checkedAt": "2026-09-28T13:38:26.113Z",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "Desktop grass follows terrain and leaves driving routes/buildings clear",
+      "status": "passed",
+      "details": {
+        "blades": 19401,
+        "floating": 0,
+        "inLane": 0,
+        "stats": {
+          "propInstances": 246,
+          "trees": 46,
+          "batchDraws": 10,
+          "staticInstances": 582,
+          "houseTriangles": 6423,
+          "terrain": {
+            "vertices": 9409,
+            "triangles": 18432,
+            "minHeight": -1.0375102758407593,
+            "maxHeight": 1.4171316623687744
+          },
+          "grassBlades": 19401,
+          "grassTiles": 21,
+          "foliageCardsPerCrown": 48
+        }
+      }
+    },
+    {
+      "name": "Clear weather does not draw rain",
+      "status": "passed",
+      "details": {
+        "dayPhase": 0.06,
+        "clouds": 0.25,
+        "rain": 0,
+        "wind": 0.6,
+        "night": 0,
+        "rainCapacity": 1800,
+        "rainVisible": false,
+        "grassBlades": 19401,
+        "grassTiles": 21,
+        "foliageCardsPerCrown": 48
+      }
+    },
+    {
+      "name": "Rain and wind render within the fixed particle budget",
+      "status": "passed",
+      "details": {
+        "atmosphere": {
+          "dayPhase": 0.06,
+          "clouds": 0.95,
+          "rain": 0.95,
+          "wind": 0.85,
+          "night": 0,
+          "rainCapacity": 1800,
+          "rainVisible": true,
+          "grassBlades": 19401,
+          "grassTiles": 21,
+          "foliageCardsPerCrown": 48
+        },
+        "render": {
+          "frame": 4,
+          "calls": 120,
+          "triangles": 178510,
+          "points": 0,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "Rain height mask includes the rest-house roofs and walls",
+      "status": "passed",
+      "details": {
+        "covered": 6,
+        "invalid": 0
+      }
+    },
+    {
+      "name": "Night activates lamps while preserving ambient visibility",
+      "status": "passed",
+      "details": {
+        "state": {
+          "dayPhase": 0.45,
+          "clouds": 0.25,
+          "rain": 0,
+          "wind": 0.4,
+          "night": 1,
+          "rainCapacity": 1800,
+          "rainVisible": false,
+          "grassBlades": 19401,
+          "grassTiles": 21,
+          "foliageCardsPerCrown": 48
+        },
+        "pools": true,
+        "light": 1.35
+      }
+    },
+    {
+      "name": "Repeated weather/day transitions keep GPU resources bounded and all shaders valid",
+      "status": "passed",
+      "details": {
+        "before": {
+          "geometries": 71,
+          "textures": 14
+        },
+        "after": {
+          "geometries": 71,
+          "textures": 14
+        },
+        "failedPrograms": 0
+      }
+    },
+    {
+      "name": "Actual grass pixels move with wind while the camera and lighting remain fixed",
+      "status": "passed",
+      "details": {
+        "changed": 50741,
+        "total": 1024000
+      }
+    },
+    {
+      "name": "Mobile grass follows terrain and leaves driving routes/buildings clear",
+      "status": "passed",
+      "details": {
+        "blades": 11294,
+        "floating": 0,
+        "inLane": 0,
+        "stats": {
+          "propInstances": 246,
+          "trees": 46,
+          "batchDraws": 10,
+          "staticInstances": 582,
+          "houseTriangles": 6423,
+          "terrain": {
+            "vertices": 9409,
+            "triangles": 18432,
+            "minHeight": -1.0375102758407593,
+            "maxHeight": 1.4171316623687744
+          },
+          "grassBlades": 11294,
+          "grassTiles": 20,
+          "foliageCardsPerCrown": 32
+        }
+      }
+    },
+    {
+      "name": "Clear weather does not draw rain",
+      "status": "passed",
+      "details": {
+        "dayPhase": 0.06,
+        "clouds": 0.25,
+        "rain": 0,
+        "wind": 0.6,
+        "night": 0,
+        "rainCapacity": 1000,
+        "rainVisible": false,
+        "grassBlades": 11294,
+        "grassTiles": 20,
+        "foliageCardsPerCrown": 32
+      }
+    },
+    {
+      "name": "Rain and wind render within the fixed particle budget",
+      "status": "passed",
+      "details": {
+        "atmosphere": {
+          "dayPhase": 0.06,
+          "clouds": 0.95,
+          "rain": 0.95,
+          "wind": 0.85,
+          "night": 0,
+          "rainCapacity": 1000,
+          "rainVisible": true,
+          "grassBlades": 11294,
+          "grassTiles": 20,
+          "foliageCardsPerCrown": 32
+        },
+        "render": {
+          "frame": 4,
+          "calls": 107,
+          "triangles": 150306,
+          "points": 0,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "Rain height mask includes the rest-house roofs and walls",
+      "status": "passed",
+      "details": {
+        "covered": 6,
+        "invalid": 0
+      }
+    },
+    {
+      "name": "Night activates lamps while preserving ambient visibility",
+      "status": "passed",
+      "details": {
+        "state": {
+          "dayPhase": 0.45,
+          "clouds": 0.25,
+          "rain": 0,
+          "wind": 0.4,
+          "night": 1,
+          "rainCapacity": 1000,
+          "rainVisible": false,
+          "grassBlades": 11294,
+          "grassTiles": 20,
+          "foliageCardsPerCrown": 32
+        },
+        "pools": true,
+        "light": 1.35
+      }
+    },
+    {
+      "name": "Repeated weather/day transitions keep GPU resources bounded and all shaders valid",
+      "status": "passed",
+      "details": {
+        "before": {
+          "geometries": 60,
+          "textures": 14
+        },
+        "after": {
+          "geometries": 60,
+          "textures": 14
+        },
+        "failedPrograms": 0
+      }
+    },
+    {
+      "name": "All environment assets and WebGL shaders load without browser errors",
+      "status": "passed",
+      "details": []
+    }
+  ],
+  "errors": [],
+  "views": [
+    {
+      "mobile": false,
+      "day": {
+        "atmosphere": {
+          "dayPhase": 0.06,
+          "clouds": 0.25,
+          "rain": 0,
+          "wind": 0.6,
+          "night": 0,
+          "rainCapacity": 1800,
+          "rainVisible": false,
+          "grassBlades": 19401,
+          "grassTiles": 21,
+          "foliageCardsPerCrown": 48
+        },
+        "render": {
+          "frame": 3,
+          "calls": 118,
+          "triangles": 174550,
+          "points": 0,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 69,
+          "textures": 13
+        }
+      },
+      "rain": {
+        "atmosphere": {
+          "dayPhase": 0.06,
+          "clouds": 0.95,
+          "rain": 0.95,
+          "wind": 0.85,
+          "night": 0,
+          "rainCapacity": 1800,
+          "rainVisible": true,
+          "grassBlades": 19401,
+          "grassTiles": 21,
+          "foliageCardsPerCrown": 48
+        },
+        "render": {
+          "frame": 4,
+          "calls": 120,
+          "triangles": 178510,
+          "points": 0,
+          "lines": 0
+        }
+      },
+      "night": {
+        "state": {
+          "dayPhase": 0.45,
+          "clouds": 0.25,
+          "rain": 0,
+          "wind": 0.4,
+          "night": 1,
+          "rainCapacity": 1800,
+          "rainVisible": false,
+          "grassBlades": 19401,
+          "grassTiles": 21,
+          "foliageCardsPerCrown": 48
+        },
+        "pools": true,
+        "light": 1.35
+      }
+    },
+    {
+      "mobile": true,
+      "day": {
+        "atmosphere": {
+          "dayPhase": 0.06,
+          "clouds": 0.25,
+          "rain": 0,
+          "wind": 0.6,
+          "night": 0,
+          "rainCapacity": 1000,
+          "rainVisible": false,
+          "grassBlades": 11294,
+          "grassTiles": 20,
+          "foliageCardsPerCrown": 32
+        },
+        "render": {
+          "frame": 3,
+          "calls": 105,
+          "triangles": 148114,
+          "points": 0,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 58,
+          "textures": 13
+        }
+      },
+      "rain": {
+        "atmosphere": {
+          "dayPhase": 0.06,
+          "clouds": 0.95,
+          "rain": 0.95,
+          "wind": 0.85,
+          "night": 0,
+          "rainCapacity": 1000,
+          "rainVisible": true,
+          "grassBlades": 11294,
+          "grassTiles": 20,
+          "foliageCardsPerCrown": 32
+        },
+        "render": {
+          "frame": 4,
+          "calls": 107,
+          "triangles": 150306,
+          "points": 0,
+          "lines": 0
+        }
+      },
+      "night": {
+        "state": {
+          "dayPhase": 0.45,
+          "clouds": 0.25,
+          "rain": 0,
+          "wind": 0.4,
+          "night": 1,
+          "rainCapacity": 1000,
+          "rainVisible": false,
+          "grassBlades": 11294,
+          "grassTiles": 20,
+          "foliageCardsPerCrown": 32
+        },
+        "pools": true,
+        "light": 1.35
+      }
+    }
+  ],
+  "environment": "Chromium software WebGL, desktop and touch/mobile viewport emulation; no physical-phone FPS claim."
+}

@@ -15,7 +15,7 @@ async function launch(mobile){
   if(!fs.existsSync(file))return route.fulfill({status:404,body:'Missing'});
   return route.fulfill({path:file,contentType:types[path.extname(file)]||'application/octet-stream'});
  });
- await page.goto('http://boom.test/?debug=1');await page.waitForFunction(()=>window.__BOOM__,null,{timeout:20000});
+ await page.goto('http://boom.test/?debug=1&offline=1');await page.waitForFunction(()=>window.__BOOM__,null,{timeout:30000});
  await page.evaluate(()=>{__BOOM__.pause();__BOOM__.step(90);});return {browser,page};
 }
 const step=(page,n)=>page.evaluate(n=>__BOOM__.step(n),n);

@@ -10,26 +10,26 @@
       "status": "passed",
       "details": {
         "position": [
-          4.053096915868082e-7,
-          0.5934303998947144,
-          2.2642955780029297
+          3.766604947941232e-7,
+          0.5934321880340576,
+          2.275770664215088
         ],
-        "speed": 7.643050310413936
+        "speed": 7.645995057873986
       }
     },
     {
       "name": "Steering changes heading while driving",
       "status": "passed",
       "details": {
-        "yaw": 0.2702453353272195
+        "yaw": 0.27031152740107767
       }
     },
     {
       "name": "Handbrake reduces speed under the same throttle",
       "status": "passed",
       "details": {
-        "before": 7.643050310413936,
-        "after": 0.019821806149871956
+        "before": 7.645995057873986,
+        "after": 0.019416824914535582
       }
     },
     {
@@ -96,7 +96,7 @@
       "name": "h9: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 60,
+        "geometry": 73,
         "shots": 72,
         "effects": 72
       }
@@ -153,7 +153,7 @@
       "name": "shas: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 92,
+        "geometry": 105,
         "shots": 72,
         "effects": 72
       }
@@ -210,7 +210,7 @@
       "name": "datsun: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 124,
+        "geometry": 137,
         "shots": 72,
         "effects": 72
       }
@@ -231,8 +231,8 @@
       "name": "Repeated vehicle switching reuses loaded GPU geometry",
       "status": "passed",
       "details": {
-        "before": 124,
-        "after": 124
+        "before": 137,
+        "after": 137
       }
     },
     {

@@ -3,6 +3,7 @@ import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {ARENA_HALF,REST_HOUSE,BRIDGE,COVER,QUARRY_ROCKS,OUTSIDE_TREES} from './WorldLayout.js';
 
 import {TerrainSurface} from './TerrainSurface.js';
+import {MotriGrass,createMotriFoliage,environmentUniforms} from './MotriVegetation.js';
 
 const up=new THREE.Vector3(0,1,0),unit=new THREE.Vector3(1,1,1);
 const helper=/^(cuboid|hull|trimesh|tube|ball)/i;
@@ -31,6 +32,7 @@ class StaticBatches {
     for(const item of this.items.values()) {
       const mesh=new THREE.InstancedMesh(item.geometry,item.material,item.matrices.length);
       mesh.name='MotriInstances_'+item.material.name;mesh.castShadow=item.shadow;mesh.receiveShadow=true;
+      if(item.material.userData.depth)mesh.customDepthMaterial=item.material.userData.depth;
       item.matrices.forEach((matrix,i)=>{mesh.setMatrixAt(i,matrix);if(item.colors[i])mesh.setColorAt(i,item.colors[i]);});
       mesh.computeBoundingBox();mesh.computeBoundingSphere();this.scene.add(mesh);this.draws++;
     }
@@ -64,11 +66,12 @@ function prefab(root,palette,lampMaterial,{bridge=false,lamp=false}={}) {
 
 export class MotriWorld {
   constructor(arena,assets) {
-    this.arena=arena;this.scene=arena.scene;this.batches=new StaticBatches(this.scene);this.treeCount=0;this.propCount=0;
+    this.arena=arena;this.scene=arena.scene;this.batches=new StaticBatches(this.scene);this.treeCount=0;this.propCount=0;this.lamps=[];
+    this.mobile=matchMedia('(pointer:coarse)').matches||innerWidth<700;this.uniforms=environmentUniforms();
     assets.palette.colorSpace=THREE.SRGBColorSpace;assets.palette.flipY=false;assets.palette.magFilter=assets.palette.minFilter=THREE.NearestFilter;assets.palette.generateMipmaps=false;
     this.palette=new THREE.MeshStandardMaterial({name:'MotriPalette',map:assets.palette,roughness:.95});
     this.lampMaterial=new THREE.MeshBasicMaterial({name:'MotriLanternGlow',color:'#ffcd81'});
-    this.leafMaterial=new THREE.MeshStandardMaterial({name:'MotriOakCrown',color:'#91a34e',roughness:1,flatShading:true});
+    this.foliage=createMotriFoliage(assets.foliage,this.uniforms,this.mobile);this.leafMaterial=this.foliage.material;
     this.prefabs={fence:prefab(assets.fence.children[0],this.palette,this.lampMaterial),brick:prefab(assets.brick.children[0],this.palette,this.lampMaterial),lamp:prefab(assets.lamp.children[0],this.palette,this.lampMaterial,{lamp:true})};
     const scenery=assets.scenery.children;
     this.prefabs.bridge=prefab(scenery.find(n=>n.name==='bridgePhysicalFixed'),this.palette,this.lampMaterial,{bridge:true});
@@ -77,7 +80,8 @@ export class MotriWorld {
     // GLTFLoader sanitizes names containing dots, so match prefixes for helpers.
     this.oak=assets.oak;this.oak.updateMatrixWorld(true);
     this.buildGround(assets);this.buildBoundary();this.buildHouse(assets.house,assets.paving);this.buildProps();this.buildPlanting();this.buildSigns();this.batches.finish();
-    this.stats={propInstances:this.propCount,trees:this.treeCount,batchDraws:this.batches.draws,staticInstances:this.batches.instances,houseTriangles:this.houseTriangles,terrain:this.terrain.stats};
+    this.grass=new MotriGrass(this.scene,this.terrain,this.uniforms,this.mobile);
+    this.stats={propInstances:this.propCount,trees:this.treeCount,batchDraws:this.batches.draws,staticInstances:this.batches.instances,houseTriangles:this.houseTriangles,terrain:this.terrain.stats,grassBlades:this.grass.count,grassTiles:this.grass.meshes.length,foliageCardsPerCrown:this.foliage.cardsPerCrown};
   }
   buildGround(assets) {
     this.terrain=new TerrainSurface(this.arena,assets);
@@ -90,6 +94,7 @@ export class MotriWorld {
   }
   place(name,position,scale=1,yaw=0,collide=true) {
     if(name!=='bridge')position=[position[0],position[1]+this.terrain.heightAt(position[0],position[2]),position[2]];
+    if(name==='lamp')this.lamps.push([...position]);
     const source=this.prefabs[name],matrix=new THREE.Matrix4().compose(new THREE.Vector3(...position),new THREE.Quaternion().setFromAxisAngle(up,yaw),new THREE.Vector3().setScalar(scale));
     for(const part of source.parts)this.batches.add(part.geometry,part.material,matrix.clone().multiply(part.matrix),name!=='fence');
     if(collide)for(const shape of source.colliders){
@@ -163,7 +168,7 @@ export class MotriWorld {
     this.oak.traverse(node=>{
       if(!node.isMesh)return;
       const leaf=node.name.startsWith('treeLeaves'),color=leaf?new THREE.Color().setHSL(.205+(this.treeCount%4)*.009,.38,.57):null;
-      this.batches.add(node.geometry,leaf?this.leafMaterial:this.palette,placement.clone().multiply(node.matrixWorld),true,color);
+      this.batches.add(leaf?this.foliage.geometry:node.geometry,leaf?this.leafMaterial:this.palette,placement.clone().multiply(node.matrixWorld),true,color);
     });
     if(collide)this.arena.addBlocker([position[0],position[1]+2.5*scale,position[2]],[.30*scale,5*scale,.30*scale],{name:'oak-trunk'});
     this.treeCount++;

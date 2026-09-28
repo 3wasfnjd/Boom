@@ -12,6 +12,27 @@ export const LOOP_ROUTE = [[-34,-25],[-34,25],[-31,31],[-25,34],[25,34],[31,31],
 
 export const ROADS=[{p:[[-34,-20],[34,-20]],w:4.8},{p:[[0,-34],[0,27],[7,34]],w:6},{p:[[0,-14],[-21,-14],[-21,-8]],w:4.2},{p:[[-6.45,4.5],[0,4.5],[12,4.5],[25,13],[34,13]],w:4}];
 
+function distanceToPath(x,z,points){
+  let d=Infinity;
+  for(let i=1;i<points.length;i++){
+    const [ax,az]=points[i-1],[bx,bz]=points[i],dx=bx-ax,dz=bz-az;
+    const t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz)));
+    d=Math.min(d,Math.hypot(x-ax-dx*t,z-az-dz*t));
+  }
+  return d;
+}
+// Keep foliage off every driving route, service pad, building and bridge.
+export function vegetationClearance(x,z){
+  if(Math.max(Math.abs(x),Math.abs(z))>44)return 0;
+  if(x>-32&&x<-5&&z>-14&&z<21.5)return 0;
+  if(x>-4&&x<12.4&&z>-9.5&&z<21.5)return 0;
+  if(x>16&&x<24&&z>-26&&z<-14)return 0;
+  let gap=distanceToPath(x,z,LOOP_ROUTE)-4.7;
+  for(const road of ROADS)gap=Math.min(gap,distanceToPath(x,z,road.p)-road.w/2-.9);
+  for(const [tx,tz] of TARGET_POSITIONS)gap=Math.min(gap,Math.hypot(x-tx,z-tz)-1.6);
+  return Math.max(0,Math.min(1,gap/1.1));
+}
+
 export function groundTexture(THREE,base) {
   const canvas=document.createElement('canvas');canvas.width=canvas.height=1536;
   const c=canvas.getContext('2d');c.drawImage(base,0,0,1536,1536);
@@ -21,8 +42,8 @@ export function groundTexture(THREE,base) {
   const line=(points,width,color)=>{c.strokeStyle=color;c.lineWidth=width;c.lineCap='round';c.lineJoin='round';c.beginPath();points.forEach(([x,z],i)=>i?c.lineTo(x,z):c.moveTo(x,z));c.stroke();};
   const loop=(width,color)=>{c.strokeStyle=color;c.lineWidth=width;c.beginPath();c.roundRect(-34,-34,68,68,9);c.stroke();};
   // Roads remain level; the surrounding native terrain carries the elevation.
-  loop(8.3,'#d9c6a0');loop(6.6,'#555a53');
-  for(const road of ROADS){line(road.p,road.w+1.1,'#d6bd91');line(road.p,road.w,'#66685a');}
+  loop(8.3,'#c9b58f');loop(6.6,'#565d5e');
+  for(const road of ROADS){line(road.p,road.w+1.1,'#c9b58f');line(road.p,road.w,'#62696a');}
   // The bridge is a narrow service crossing beside a dry stone channel.
   c.fillStyle='#927453';c.fillRect(17,-25,6,10);line([[14,-20],[26,-20]],2.65,'#c9b28c');
   c.setLineDash([1.2,1.7]);loop(.10,'#dccb99');c.setLineDash([]);
@@ -34,5 +55,11 @@ export function groundTexture(THREE,base) {
   for(const [x,z,angle] of [[0,24,0],[0,-27,0],[-29,-20,Math.PI/2],[30,13,Math.PI/2]]){
     c.save();c.translate(x,z);c.rotate(angle);line([[-.48,-.5],[0,.1],[.48,-.5]],.15,'#e9d6a3');c.restore();
   }
+  // Fixed fine grain avoids a flat painted appearance without another texture.
+  c.setTransform(1,0,0,1,0,0);
+  const data=c.getImageData(0,0,1536,1536);
+  let seed=8419;
+  for(let i=0;i<data.data.length;i+=4){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const n=(seed/4294967296-.5)*8;for(let k=0;k<3;k++)data.data[i+k]+=n;}
+  c.putImageData(data,0,0);
   const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=4;return texture;
 }

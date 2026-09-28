@@ -1,0 +1,41 @@
+{
+  "repository": "3wasfnjd/Motri",
+  "revision": "ee7e01dfe848f1bc7e857d51bcee2e687bee21eb",
+  "boomBase": "1d0b7fcbb0dc8a8a451499e80708fa20bde9fb69",
+  "sourceModules": [
+    "sources/Game/World/Grass.js",
+    "sources/Game/World/Foliage.js",
+    "sources/Game/World/Trees.js",
+    "sources/Game/World/RainLines.js",
+    "sources/Game/World/Floor.js",
+    "sources/Game/Weather.js",
+    "sources/Game/Wind.js",
+    "sources/Game/Cycles/DayCycles.js",
+    "sources/Game/Ligthing.js",
+    "sources/Game/Fog.js"
+  ],
+  "adaptations": [
+    "TSL wind, rain and foliage translated to GLSL for WebGLRenderer",
+    "Original 240-second day keyframes with light levels and colours balanced for combat",
+    "300-second weather variation; original humidity/cloud relationship retained",
+    "Original grass mask clipped against Boom roads and buildings; actual terrain height used",
+    "Foliage clusters reduced from 80 cards to 32 mobile / 48 desktop",
+    "Rain roof clipping, ground splashes, wet shading and cloud shadows added for this arena",
+    "Online time follows existing battle server offset; gameplay and collision map unchanged"
+  ],
+  "assets": [
+    {
+      "source": "static/foliage/foliageSDF.png",
+      "file": "models/world/motri-foliage.png",
+      "bytes": 10950,
+      "sha256": "b73a07a219d1ecd284dedbea65d729b4fa68457947555f07fbdf6bfcc85f3fc3"
+    },
+    {
+      "source": "static/sounds/rain/soundjay_rain-on-leaves_main-01.mp3",
+      "file": "assets/audio/motri-rain.mp3",
+      "bytes": 149788,
+      "sha256": "764838782599a810e2f719b010b943c15eb2d86f703f57cb505b296653a6a26f"
+    }
+  ],
+  "sourceLicense": "licenses/Motri-MIT.txt"
+}

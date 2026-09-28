@@ -1,0 +1,57 @@
+{
+  "checkedAt": "2026-09-28T13:39:40.680136+00:00",
+  "status": "passed",
+  "browserBundleGitBlob": "cacf972766ec3f7fdde4f45de537a6aa3935ec54",
+  "suites": [
+    {
+      "name": "motri-physics",
+      "command": "npm run verify",
+      "status": "passed",
+      "checks": 13
+    },
+    {
+      "name": "arena",
+      "command": "npm run verify:browser",
+      "status": "passed",
+      "checks": 32
+    },
+    {
+      "name": "world",
+      "command": "npm run verify:world",
+      "status": "passed",
+      "checks": 13
+    },
+    {
+      "name": "environment",
+      "command": "npm run verify:environment",
+      "status": "passed",
+      "checks": 14
+    },
+    {
+      "name": "multiplayer",
+      "command": "npm run verify:multiplayer:browser",
+      "status": "passed",
+      "checks": 10
+    },
+    {
+      "name": "continuous shot collisions",
+      "command": "node verification/shots.mjs",
+      "status": "passed",
+      "checks": 10
+    },
+    {
+      "name": "authoritative multiplayer server",
+      "command": "npm run verify:multiplayer",
+      "status": "passed",
+      "checks": 10
+    }
+  ],
+  "build": "passed",
+  "sitePackage": "passed",
+  "collisionAndVehiclePhysicsFiles": "unchanged from base",
+  "notes": [
+    "One initial concurrent software-browser multiplayer run lost a peer; unchanged test passed when run alone.",
+    "Browser validation uses Chromium software WebGL and mobile viewport/touch emulation, not a physical iPhone/Android FPS measurement."
+  ],
+  "checksPassed": 102
+}

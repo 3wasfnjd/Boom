@@ -8,7 +8,7 @@ const check=(name,value,details)=>{assert.ok(value,name+' '+JSON.stringify(detai
  try {
   page.on('pageerror',e=>report.errors.push(e.stack));page.on('console',m=>{if(m.type()==='error')report.errors.push(m.text());});
   await page.route('http://boom.test/**',route=>{const pathname=new URL(route.request().url()).pathname,file=path.join(root,pathname==='/'?'index.html':pathname),types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.wasm':'application/wasm','.png':'image/png','.webp':'image/webp','.glb':'model/gltf-binary'};return route.fulfill({path:file,contentType:types[path.extname(file)]||'application/octet-stream'});});
-  await page.goto('http://boom.test/?debug=1');await page.waitForFunction(()=>window.__BOOM__,null,{timeout:20000});await page.evaluate(()=>{__BOOM__.pause();__BOOM__.step(60);});
+  await page.goto('http://boom.test/?debug=1&offline=1');await page.waitForFunction(()=>window.__BOOM__,null,{timeout:30000});await page.evaluate(()=>{__BOOM__.pause();__BOOM__.step(60);});
   const terrain=await page.evaluate(()=>__BOOM__.arena.environment.terrain.stats);
   check('Native terrain includes physical depressions and positive dunes',terrain.maxHeight>1&&terrain.minHeight<-.8,terrain);
   const trace=await page.evaluate(()=>{const t=__BOOM__.arena.environment.terrain;return {ridge:t.trace({x:23,y:.55,z:16},{x:23,y:.55,z:31}),low:t.trace({x:25,y:1,z:5},{x:25,y:-2,z:5}),ground:t.heightAt(25,5)};});

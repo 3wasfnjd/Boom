@@ -96,7 +96,7 @@ export class TerrainSurface {
     return null;
   }
   paintSourceGround(terrainImage,slabImage) {
-    const terrain=pixels(terrainImage),slabs=pixels(slabImage),canvas=document.createElement('canvas');canvas.width=canvas.height=512;
+    const terrain=pixels(terrainImage),slabs=pixels(slabImage),canvas=document.createElement('canvas');canvas.width=canvas.height=512;this.sourceData=terrain;
     const c=canvas.getContext('2d'),image=c.createImageData(512,512),sand=[217,166,94],grass=[184,182,46],wet=[85,142,135];
     for(let py=0;py<512;py++)for(let px=0;px<512;px++){
       // Canvas top corresponds to +Z, as on Three's original rotated plane.
@@ -114,5 +114,10 @@ export class TerrainSurface {
       image.data[out+3]=255;
     }
     c.putImageData(image,0,0);return canvas;
+  }
+  grassAt(x,z){
+    const t=this.sourceData,tx=clamp(Math.round((x/100+.5)*(t.width-1)),0,t.width-1),tz=clamp(Math.round((z/100+.5)*(t.height-1)),0,t.height-1);
+    const grass=t.data[(tz*t.width+tx)*4+1]/255;
+    return smooth(.3,.75,grass)*(1-smooth(.02,.35,this.heightAt(x,z)));
   }
 }

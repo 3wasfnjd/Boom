@@ -8,6 +8,7 @@ import {CombatInput} from './CombatInput.js';
 import {CombatSystem,WEAPONS} from './CombatSystem.js';
 import {BattleClient} from './BattleClient.js';
 import {FixedStepClock} from './FixedStepClock.js';
+import {MotriAtmosphere} from './MotriAtmosphere.js';
 
 const loading=document.getElementById('loading'),message=document.getElementById('loading-message');
 async function start() {
@@ -16,7 +17,7 @@ async function start() {
   renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
   const scene=new THREE.Scene();scene.background=new THREE.Color('#d0b18a');scene.fog=new THREE.Fog('#d0b18a',48,110);
   const camera=new THREE.PerspectiveCamera(49,innerWidth/innerHeight,.08,130);
-  scene.add(new THREE.HemisphereLight('#e7eff4','#897451',2.4));
+  const ambient=new THREE.HemisphereLight('#e7eff4','#897451',2.4);scene.add(ambient);
   const sun=new THREE.DirectionalLight('#fff1cc',3.4);sun.position.set(-10,17,-6);sun.castShadow=true;
   sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=sun.shadow.camera.bottom=-16;sun.shadow.camera.right=sun.shadow.camera.top=16;
   sun.shadow.camera.near=.1;sun.shadow.camera.far=45;sun.shadow.normalBias=.035;sun.shadow.bias=-.0002;scene.add(sun,sun.target);
@@ -32,11 +33,12 @@ async function start() {
   const textures=new THREE.TextureLoader();
   const worldLoading=Promise.all([
     ...Object.entries(worldModels).map(async([key,file])=>{worldAssets[key]=(await loader.loadAsync(new URL(`models/world/motri-${file}.glb`,document.baseURI).href)).scene;}),
-    ...[['palette','png'],['paving','webp'],['terrain','png'],['slabs','png']].map(async([key,extension])=>{worldAssets[key]=await textures.loadAsync(new URL(`models/world/motri-${key}.${extension}`,document.baseURI).href);}),
+    ...[['palette','png'],['paving','webp'],['terrain','png'],['slabs','png'],['foliage','png']].map(async([key,extension])=>{worldAssets[key]=await textures.loadAsync(new URL(`models/world/motri-${key}.${extension}`,document.baseURI).href);}),
     fetch(new URL('models/world/motri-heightfield.bin',document.baseURI)).then(response=>{if(!response.ok)throw Error('Terrain data unavailable');return response.arrayBuffer();}).then(data=>{worldAssets.heightfield=data;})
   ]);
   const [firstCar,crate]=await Promise.all([loadCar('h9'),loader.loadAsync(new URL('models/world/motri-crate.glb',document.baseURI).href),worldLoading]);decoder.dispose();
   const arena=new Arena(scene,world,crate.scene,worldAssets),vehicle=new MotriVehicle(world,scene),input=new CombatInput(renderer.domElement);
+  const atmosphere=new MotriAtmosphere({scene,renderer,environment:arena.environment,sun,ambient});
   let battle=null;
   let id='h9',hits=0,hitFlash=0,selection=0,paused=false;
   const aimMark=document.getElementById('aim-mark'),hitMark=document.getElementById('hit-mark'),hitCount=document.getElementById('hit-count'),hint=document.getElementById('hint');
@@ -67,7 +69,6 @@ async function start() {
     const velocity=vehicle.body.linvel();
     lookTarget.copy(vehicle.container.position);lookTarget.y+=.3;lookTarget.x+=THREE.MathUtils.clamp(velocity.x*.08,-2,2);lookTarget.z+=THREE.MathUtils.clamp(velocity.z*.08,-2,2);
     follow.lerp(lookTarget,1-Math.exp(-7*dt));camera.position.copy(follow).add(cameraOffset);camera.lookAt(follow);camera.updateMatrixWorld();
-    sun.target.position.copy(vehicle.container.position);sun.position.copy(sun.target.position).add(new THREE.Vector3(-10,17,-6));sun.target.updateMatrixWorld();
   }
   function tick(controls) {
     const dt=1/60;
@@ -76,6 +77,7 @@ async function start() {
     battle?.update(dt);if(vehicle.container.position.y< -5)reset();moveCamera(dt);arena.update(dt,camera);combat.update(dt,controls,camera);hitFlash=Math.max(0,hitFlash-dt);
   }
   function draw() {
+    atmosphere.update(camera,vehicle.container.position,(Date.now()+(battle?.online?battle.serverOffset:0))/1000);
     projected.copy(combat.aimPoint).project(camera);
     const visible=projected.z>-1&&projected.z<1&&Math.abs(projected.x)<.98&&Math.abs(projected.y)<.96;
     aimMark.style.display=visible?'block':'none';aimMark.style.left=`${(projected.x*.5+.5)*innerWidth}px`;aimMark.style.top=`${(-projected.y*.5+.5)*innerHeight}px`;aimMark.classList.toggle('locked',!!combat.lockedTarget);
@@ -92,7 +94,7 @@ async function start() {
   });
   // The diagnostics API is opt-in and kept out of the player's interface.
   if(new URLSearchParams(location.search).has('debug'))window.__BOOM__={
-    get vehicle(){return vehicle;},get body(){return vehicle.body;},scene,arena,combat,input,world,camera,renderer,clock,battle,selectCar,reset,
+    get vehicle(){return vehicle;},get body(){return vehicle.body;},scene,arena,combat,input,world,camera,renderer,clock,battle,atmosphere,selectCar,reset,
     teleport(x,z,angle=0){reset();vehicle.reset(x,arena.environment.terrain.heightAt(x,z)+SPAWN[1],z,angle);if(battle.local){const p=battle.local.players.get(battle.id);p.p=vehicle.container.position.toArray();p.q=vehicle.container.quaternion.toArray();p.shieldUntil=0;}follow.copy(vehicle.container.position);moveCamera(1);},
     pause(value=true){paused=value;},
     step(frames=1,controls){for(let i=0;i<frames;i++)tick(controls||input.read(worldAngle,vehicle.heading));draw();},
