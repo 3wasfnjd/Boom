@@ -1,0 +1,16 @@
+{
+  "sourceRepository":"3wasfnjd/Motri",
+  "sourceBranch":"multiplayer-prototype",
+  "sourceRevision":"16a921fd3f9118418936e8a453bd35cf7d59e729",
+  "ports":[
+    {"source":"sources/Game/Multiplayer.js + sources/Game/Server.js + multiplayer-server/src/index.js","destination":"src/BattleClient.js + server/worker.js","adaptation":"Retain named WebSocket rooms, six-player limit, pose/velocity/wheel snapshots, 20 Hz sending, interpolation and bounded extrapolation. Extract the driving-only pieces; omit Motri animals/world ownership/lobby dependencies. Use isolated BoomRoom Durable Objects. Server-owned battle logic is new in server/BattleRoom.js."},
+    {"source":"sources/Game/World/Fireballs.js + sources/Game/Noises.js","destination":"src/MotriFireballs.js","adaptation":"Translate TSL triplanar Perlin noise dissolve into a WebGL ShaderMaterial. Generate the same 128px periodic noise formula on CPU. Retain SphereGeometry(.5,12,6), red/orange emissive strength 8, .6s expansion and 2.25s lifetime; adapt floor attenuation to terrain height and render scale. Pool 18 meshes instead of per-event allocation; no single-player bullet-time effect in multiplayer."},
+    {"source":"sources/Game/Explosions.js","destination":"shared/BattleRules.js blastKick","adaptation":"Retain horizontal direction length .5, upward component 1 and radial distance falloff; convert original native-unit impulse into render-unit velocity change and apply with local Rapier mass."},
+    {"source":"sources/Game/World/ExplosiveCrates.js","destination":"server/BattleRoom.js","adaptation":"Retain contact-triggered 400 ms fuse and original fireball/sound; add rear throwing, arming delay, cooldown, lifetime, shared health and authoritative chain reactions."},
+    {"source":"static/sounds/explosions/SmallImpactMediumE PE281202.mp3","destination":"assets/audio/motri-explosion-2.mp3","adaptation":"Unchanged binary."},
+    {"source":"static/sounds/explosions/SmallImpactMediumE PE281203.mp3","destination":"assets/audio/motri-explosion-3.mp3","adaptation":"Unchanged binary."}
+  ],
+  "crateModel":"Reuse models/world/motri-crate.glb already imported from Motri; no replacement primitive model.",
+  "collisionMap":"109 existing blocker bounds and the same 97x97 terrain heights, exported with scripts/export-arena.cjs.",
+  "deployment":"Independent Boom Worker configured; Cloudflare account connection is required before Internet multiplayer is live. Motri repository and deployed service are unchanged."
+}

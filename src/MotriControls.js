@@ -13,7 +13,7 @@ export function motriTouchInput(x,z,progress,heading){
 export class MotriControls {
  constructor(){
   this.keys={};this.touchActive=false;this.touchDirX=this.touchDirY=0;this.steerPointerId=null;
-  window.addEventListener('keydown',e=>{this.keys[e.code]=true;});window.addEventListener('keyup',e=>{this.keys[e.code]=false;});
+  window.addEventListener('keydown',e=>{if(!e.target.matches('input,textarea'))this.keys[e.code]=true;});window.addEventListener('keyup',e=>{this.keys[e.code]=false;});
   this.setupTouchUI();
  }
  setupTouchUI(){

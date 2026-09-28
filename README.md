@@ -101,7 +101,7 @@ npm run verify:world
 
 هذه فحوص Chromium بمحاكاة شاشة ولمس، وليست قياس أداء على هاتف فعلي. الموديل الواحد نحو 6.7–7.3 آلاف مثلث و31–35 استدعاء رسم قبل الظلال. نعرض سيارة واحدة في هذه الساحة، ونحمّل البقية عند اختيارها، ونستخدم عددًا ثابتًا للمقذوفات والمؤثرات. عناصر العالم المتكررة موزعة على 10 دفعات رسم، وشبكة التضاريس 18,432 مثلثًا. إجمالي العالم والسيارة والظلال أعلى من أرقام السيارة وحدها، ولا تعني هذه الأعداد ضمان معدل إطارات معين.
 
-تستخدم النسخة الحالية تصادمًا مركبًا للهيكل وتعليقًا بالعجلات بدل الكرة المخفية. تفاصيل الهيكل الفيزيائي تقريبية، وليست شبكة كل قطعة من الموديل. صحة السيارات وخصوم المطاردة مرحلة لاحقة.
+تستخدم النسخة الحالية تصادمًا مركبًا للهيكل وتعليقًا بالعجلات بدل الكرة المخفية. تفاصيل الهيكل الفيزيائي تقريبية، وليست شبكة كل قطعة من الموديل. أُضيفت صحة السيارات والقتال الجماعي في الإصدار 0.5؛ تفعيل اللعب عبر الإنترنت يحتاج نشر خادم Boom كما هو موضح أدناه.
 
 ملف Rapier WASM المحلي نحو 1.7 ميجابايت ويُحمّل في البداية؛ لم تعد حزمة التشغيل تتضمن Crashcat. لا تعني الاختبارات ضمان سلاسة على هاتف فعلي.
 
@@ -131,3 +131,15 @@ The source cubic joystick curve gave only 12.5% throttle at half stick travel. B
 The fixed-angle follow camera is closer and lower: portrait offset (2.2, 7.5, -10.7), landscape (4.4, 6.8, -10.8), with a small look-ahead in the direction of velocity. This makes ground movement more visible; it does not change vehicle speed.
 
 `FixedStepClock` preserves 60 simulation steps per second at render rates down to 4 FPS; it caps catch-up after long stalls at 250 ms. The previous five-step limit discarded simulation time below 12 FPS. Tests cover 60/30/15/12/10/8/5 FPS and tab-resume limits. This fixes simulation slowdown and does not raise rendered FPS. No physical phone frame-rate measurement is available.
+
+## اللعب الجماعي والقتال (0.5)
+
+أضيفت غرف حتى ٦ لاعبين، أسماء وشرائط حياة، مزامنة السيارات والأسلحة، ضرر ودفعة اصطدام من الطلقات والانفجار، وعودة بعد ٥ ثوانٍ من تدمير السيارة. زر **صندوق ↧** (أو E) يقذف صندوق موتري من الخلف؛ يتسلح بعد 0.65 ثانية وينفجر بعد مهلة تماس/إصابة 0.4 ثانية، مع تهدئة قذف ٥ ثوانٍ. تأثير كرة النار والأصوات من موتري، مع تكييف تأثير TSL إلى WebGL.
+
+**حالة النشر:** ملفات اللعبة والخادم جاهزة في هذا المستودع. صفحة GitHub Pages تعمل كتدريب فردي إلى حين ربط Worker بحساب Cloudflare. لا يُعد وجود أزرار الغرفة تأكيدًا على تشغيل الخادم العام. التعليمات المضبوطة في [server/README.md](server/README.md). عند نشر Worker يعرض اللعبة ويتصل بالخادم نفسه تلقائيًا؛ يمكن مشاركة رمز الغرفة من داخل اللعبة.
+
+الصحة والإصابات ومهلة السلاح والصناديق يتحكم بها الخادم، بينما تحتفظ السيارة المحلية بفيزياء Rapier. لم يُعدّل فرع موتري الرئيسي أو خادمه الحالي. تفاصيل النقل وحدوده في [multiplayer-port.json](verification/multiplayer-port.json).
+
+التحقق: `npm run verify:multiplayer`، و[نتائج المتصفحين](verification/multiplayer-results.json)، و[حالة فحص Worker المحلي](verification/worker-runtime-results.json). الاختبار محلي، وليس قياسًا لزمن الاستجابة عبر الإنترنت أو على هاتف فعلي.
+
+نجح بناء Worker التجريبي (`wrangler deploy --dry-run`). تعذر تشغيل بيئة workerd المحلية لأن بيئة التنفيذ تمنع تعداد واجهات الشبكة؛ الحالة موثقة ولم تُسجل كاختبار ناجح.

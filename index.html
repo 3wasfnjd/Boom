@@ -5,7 +5,7 @@
 <meta name="theme-color" content="#202926"><meta name="description" content="BOOM — ساحة تجربة سيارات موتري بأسلحة وقيادة هجولة">
 <title>BOOM • ساحة الاستراحة</title>
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
-<link rel="stylesheet" href="./src/game.css?v=touch-speed-3">
+<link rel="stylesheet" href="./src/game.css?v=multiplayer-1">
 </head>
 <body>
 <canvas id="game" aria-label="ساحة تجربة السيارات"></canvas>
@@ -14,17 +14,22 @@
  <div class="cars" role="group" aria-label="اختيار السيارة">
   <button data-car="h9" aria-pressed="true">هافال</button><button data-car="shas" aria-pressed="false">شاص</button><button data-car="datsun" aria-pressed="false">ددسن</button>
  </div>
+ <button id="room-button" class="room-button" aria-label="اللاعبون والغرفة">غرفة</button>
  <button id="reset" class="icon-button" aria-label="إعادة السيارة والأهداف">↻</button>
 </header>
 <aside class="game-hud readout"><span id="weapon-name">رشاش مزدوج</span><span id="hit-count">إصابات ٠</span></aside>
+<aside class="game-hud battle-hud"><span id="network-status">تجهيز الساحة…</span><div class="health-track"><i id="player-health-fill"></i><b id="player-health-text">100 / 100</b></div></aside>
+<div id="battle-notice" role="status"></div><div id="damage-flash" aria-hidden="true"></div>
+<dialog id="room-dialog"><b>ساحة اللاعبين</b><label>اسمك<input id="player-name" maxlength="14" autocomplete="nickname"></label><label>الغرفة<input id="room-name" maxlength="24" dir="ltr" placeholder="public"></label><small>نفس اسم الغرفة يجمعكم · حتى ٦ لاعبين</small><button id="join-room">دخول الغرفة</button><button id="invite-room">نسخ رابط الدعوة</button><input id="invite-link" hidden readonly dir="ltr"><button id="close-room">إغلاق</button></dialog>
 <div id="aim-mark" aria-hidden="true"><i></i></div>
 <div id="hit-mark" aria-hidden="true">×</div>
 <div id="hint">WASD أو الأسهم للقيادة · الماوس للتصويب والإطلاق · B للفرامل</div>
 <div class="game-hud actions">
+ <button id="drop-crate" aria-label="قذف صندوق متفجر من الخلف">صندوق ↧</button>
  <button id="brake" aria-label="فرامل">فرامل</button>
  <div id="aim-pad" role="button" tabindex="0" aria-label="اضغط للإطلاق أو اسحب للتصويب"><div class="aim-ring"><span id="aim-knob">إطلاق</span></div></div>
 </div>
 <div id="loading"><b>BOOM</b><span id="loading-message">تجهيز ساحة الاستراحة…</span><div class="load-track"><i></i></div><button id="retry" hidden>إعادة المحاولة</button></div>
 <script>window.addEventListener('error',function(){var e=document.getElementById('loading');if(e&&!e.hidden){document.getElementById('loading-message').textContent='تعذر تشغيل الساحة. أعد المحاولة.';document.getElementById('retry').hidden=false;}});document.getElementById('retry').onclick=function(){location.reload()};</script>
-<script type="module" src="./app.min.js?v=touch-speed-3"></script>
+<script type="module" src="./app.min.js?v=multiplayer-1"></script>
 </body></html>

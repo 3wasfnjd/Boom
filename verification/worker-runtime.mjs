@@ -1,0 +1,12 @@
+import {spawn} from 'node:child_process';import {once} from 'node:events';import {writeFileSync} from 'node:fs';import assert from 'node:assert/strict';import WebSocket from 'ws';
+const child=spawn('npx',['--yes','wrangler@4','dev','--local','--ip','127.0.0.1','--port','8788','--show-interactive-dev-session=false'],{env:{...process.env,CLOUDFLARE_SEND_METRICS:'false'},stdio:['ignore','pipe','pipe'],detached:true});let log='';child.stdout.on('data',d=>log+=d);child.stderr.on('data',d=>log+=d);
+const delay=ms=>new Promise(r=>setTimeout(r,ms));const sockets=[];let report;
+try{let health;for(let i=0;i<90;i++){try{const r=await fetch('http://127.0.0.1:8788/health');health=await r.json();if(health.status==='ready')break;}catch{}await delay(500);}assert.equal(health?.game,'Boom','Worker health route');
+ async function join(name){const ws=new WebSocket('ws://127.0.0.1:8788/room/runtime',{origin:'https://3wasfnjd.github.io'});sockets.push(ws);await once(ws,'open');const welcome=new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Welcome timed out')),5000);ws.on('message',raw=>{const m=JSON.parse(String(raw));if(m.type==='welcome'){clearTimeout(timer);resolve(m);}});});ws.send(JSON.stringify({type:'hello',name,body:'h9'}));return {ws,message:await welcome};}
+ const a=await join('A'),b=await join('B');assert.notEqual(a.message.id,b.message.id);assert.equal(b.message.players.length,2);assert.equal(b.message.self.hp,100);
+ const snapshot=new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Snapshot timed out')),3000);a.ws.on('message',raw=>{const m=JSON.parse(String(raw));if(m.type==='snapshot'&&m.players.length===2){clearTimeout(timer);resolve(m);}});});await snapshot;
+ const denied=await fetch('http://127.0.0.1:8788/room/runtime',{headers:{Origin:'https://invalid.example'}});assert.equal(denied.status,403);
+ const html=await fetch('http://127.0.0.1:8788/').then(r=>r.text());assert.ok(html.includes('drop-crate'));
+ report={status:'passed',checks:['Worker health','Real Durable Object joins','Shared room snapshots','Origin rejection','Packaged game assets'],runtime:'Wrangler local workerd; no Cloudflare account credentials or public deployment'};
+}finally{for(const ws of sockets)ws.close();try{process.kill(-child.pid,'SIGTERM');}catch{}writeFileSync('../inspection/worker-runtime.log',log);}
+writeFileSync('verification/worker-runtime-results.json',JSON.stringify(report,null,2)+'\n');console.log(report);

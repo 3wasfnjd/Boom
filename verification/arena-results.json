@@ -96,7 +96,7 @@
       "name": "h9: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 59,
+        "geometry": 60,
         "shots": 72,
         "effects": 72
       }
@@ -153,7 +153,7 @@
       "name": "shas: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 91,
+        "geometry": 92,
         "shots": 72,
         "effects": 72
       }
@@ -210,7 +210,7 @@
       "name": "datsun: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 123,
+        "geometry": 124,
         "shots": 72,
         "effects": 72
       }
@@ -231,8 +231,8 @@
       "name": "Repeated vehicle switching reuses loaded GPU geometry",
       "status": "passed",
       "details": {
-        "before": 123,
-        "after": 123
+        "before": 124,
+        "after": 124
       }
     },
     {
@@ -265,7 +265,7 @@
       "name": "Dragging the fire pad rotates the turret",
       "status": "passed",
       "details": {
-        "yaw": -1.619755794886213,
+        "yaw": -1.6199905568155188,
         "stick": [
           0.8571428571428571,
           0
@@ -278,12 +278,12 @@
       "name": "Touch handbrake works while driving and shooting",
       "status": "passed",
       "details": {
-        "before": -0.7464400330330916,
-        "after": 0.019149949548576004,
+        "before": -0.7916590542128801,
+        "after": 0.019370022825744702,
         "position": [
-          -4.930391311645508,
-          0.5948435068130493,
-          15.126041412353516
+          -4.945320129394531,
+          0.5949517488479614,
+          15.1210298538208
         ],
         "controls": {
           "braking": true,

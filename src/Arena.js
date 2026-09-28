@@ -49,7 +49,7 @@ export class Arena {
   update(dt,camera) {
     this.time+=dt;
     for(const target of this.targets){
-      if(!target.active&&this.time>=target.respawnAt)this.restore(target);
+      if(!this.networked&&!target.active&&this.time>=target.respawnAt)this.restore(target);
       target.flash=Math.max(0,target.flash-dt);target.crate.material.emissive.setHex(target.flash>0?0x664516:0);
       target.bar.quaternion.copy(camera.quaternion);
     }

@@ -1,0 +1,115 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "Two independent browser sessions join one room and load actual remote car/health",
+      "status": "passed",
+      "details": {
+        "peers": 1,
+        "models": 1,
+        "self": {
+          "id": "ee7eee9c-b920-457e-9c5b-80de6235f41e",
+          "name": "لاعب 704",
+          "body": "h9",
+          "p": [
+            -2,
+            0.5951219201087952,
+            -22
+          ],
+          "q": [
+            0,
+            -5.551115218129073e-17,
+            0,
+            1
+          ],
+          "v": [
+            0,
+            0,
+            0
+          ],
+          "wy": [
+            -0.7903205156326294,
+            -0.7903205156326294,
+            -0.7903205156326294,
+            -0.7903205156326294
+          ],
+          "steer": 0,
+          "spin": 0,
+          "yaw": 1.6715644209715292,
+          "pitch": 0.02847351795925396,
+          "hp": 100,
+          "alive": true,
+          "shieldUntil": 1790592252765,
+          "respawnAt": 0,
+          "crateAt": 0,
+          "kills": 0,
+          "deaths": 0,
+          "connected": true,
+          "seq": 50
+        },
+        "tag": "لاعب 477"
+      }
+    },
+    {
+      "name": "Real gun input damages the other browser with matching server health",
+      "status": "passed",
+      "details": {
+        "victim": {
+          "hp": 94,
+          "dead": false,
+          "body": true
+        },
+        "shooterSees": 94
+      }
+    },
+    {
+      "name": "Forged client damage is ignored",
+      "status": "passed"
+    },
+    {
+      "name": "Destroyed car disables driving and disappears during respawn countdown",
+      "status": "passed",
+      "details": {
+        "type": "damage",
+        "hp": 0,
+        "enabled": false,
+        "visible": false
+      }
+    },
+    {
+      "name": "Server respawns the player at full health on both clients",
+      "status": "passed"
+    },
+    {
+      "name": "Rear crate appears with the same ID on both clients",
+      "status": "passed",
+      "details": [
+        [
+          "crate:56"
+        ],
+        [
+          "crate:56"
+        ]
+      ]
+    },
+    {
+      "name": "Crate cooldown rejects repeated drops",
+      "status": "passed"
+    },
+    {
+      "name": "Recover button does not heal the player",
+      "status": "passed"
+    },
+    {
+      "name": "Reload reconnects without a duplicate remote car",
+      "status": "passed"
+    },
+    {
+      "name": "Crate expires and original Motri fireball runs without shader errors",
+      "status": "passed",
+      "details": []
+    }
+  ],
+  "errors": [],
+  "environment": "Two Chromium browser contexts connected to the real local WebSocket adapter with server-owned battle state; not an Internet or physical-phone latency measurement."
+}

@@ -1,0 +1,11 @@
+import http from 'node:http';
+import {WebSocketServer} from 'ws';
+import {BattleRoom} from './BattleRoom.js';
+import {cleanRoom,PROTOCOL} from '../shared/BattleRules.js';
+const rooms=new Map(),port=Number(process.env.PORT||8787),server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'application/json','Access-Control-Allow-Origin':'*'});res.end(JSON.stringify({game:'Boom',protocol:PROTOCOL,status:'ready'}));});
+const wss=new WebSocketServer({noServer:true,maxPayload:4096});
+server.on('upgrade',(req,socket,head)=>{const url=new URL(req.url,'http://localhost');if(!url.pathname.startsWith('/room/')){socket.destroy();return;}wss.handleUpgrade(req,socket,head,ws=>wss.emit('connection',ws,cleanRoom(url.pathname.split('/')[2])));});
+wss.on('connection',(ws,roomId)=>{let entry=rooms.get(roomId);if(!entry){entry={sockets:new Set()};entry.game=new BattleRoom({broadcast:m=>{const raw=JSON.stringify(m);for(const peer of entry.sockets)if(peer.pid&&peer.readyState===1)peer.send(raw);}});rooms.set(roomId,entry);}entry.sockets.add(ws);ws.on('message',raw=>{let m;try{m=JSON.parse(String(raw));}catch{return;}if(!ws.pid&&m.type==='hello'){const welcome=entry.game.join(m);if(welcome.type==='full'){ws.send(JSON.stringify(welcome));ws.close(4001);return;}for(const peer of entry.sockets)if(peer!==ws&&peer.pid===welcome.id){peer.pid=null;peer.close(4002);}ws.pid=welcome.id;ws.send(JSON.stringify(welcome));}else if(ws.pid)entry.game.message(ws.pid,m);});ws.on('close',()=>{entry.sockets.delete(ws);if(ws.pid)entry.game.leave(ws.pid);});});
+const timer=setInterval(()=>{for(const [id,entry] of rooms){entry.game.tick();if(!entry.sockets.size&&!entry.game.players.size)rooms.delete(id);}},50);
+server.listen(port,'127.0.0.1',()=>console.log('Boom test server listening on '+port));
+for(const event of ['SIGTERM','SIGINT'])process.on(event,()=>{clearInterval(timer);wss.close();server.close();process.exit(0);});

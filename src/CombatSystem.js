@@ -1,11 +1,8 @@
 import * as THREE from 'three';
 import {traceShot} from './ShotCollision.js';
 
-export const WEAPONS = {
-  h9:{kind:'machinegun',label:'رشاش مزدوج',interval:.11,speed:70,damage:12,radius:.035,life:1.0,splash:0},
-  shas:{kind:'cannon',label:'مدفع',interval:.85,speed:34,damage:70,radius:.10,life:2.0,splash:1.8},
-  datsun:{kind:'rockets',label:'قاذف صواريخ',interval:.55,speed:26,damage:55,radius:.09,life:2.5,splash:2.2}
-};
+import {WEAPONS} from '../shared/BattleRules.js';
+export {WEAPONS};
 const forward=new THREE.Vector3(0,0,1);
 const temp=new THREE.Vector3(),origin=new THREE.Vector3(),direction=new THREE.Vector3(),quaternion=new THREE.Quaternion();
 const aimPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-.75);
@@ -67,7 +64,7 @@ export class CombatSystem {
       aimPlane.constant=-(groundHit?groundHit.y+.75:.75);
       this.raycaster.ray.intersectPlane(aimPlane,this.aimPoint);
       let nearest=groundHit?this.raycaster.ray.origin.distanceToSquared(groundHit):Infinity;
-      for(const target of this.arena.targets){
+      for(const target of (this.network?.enabled?[...this.arena.targets,...this.network.targets()]:this.arena.targets)){
         if(!target.active||!this.raycaster.ray.intersectBox(target.bounds,temp))continue;
         const distance=this.raycaster.ray.origin.distanceToSquared(temp);
         if(distance<nearest){nearest=distance;this.aimPoint.copy(temp);}
@@ -78,7 +75,7 @@ export class CombatSystem {
       this.aimPoint.copy(origin).add(new THREE.Vector3(input.aim.x*32,0,input.aim.y*32));this.aimPoint.y=this.arena.environment.terrain.heightAt(this.aimPoint.x,this.aimPoint.z)+.75;
     }else {
       let nearest=28;
-      for(const target of this.arena.targets) {
+      for(const target of (this.network?.enabled?[...this.arena.targets,...this.network.targets()]:this.arena.targets)) {
         if(!target.active)continue;
         temp.subVectors(target.position,origin);const distance=temp.length();
         if(distance>nearest||temp.clone().normalize().dot(direction)<.40)continue;
@@ -118,23 +115,32 @@ export class CombatSystem {
     }
   }
   shoot() {
+    if(this.network&&!this.network.canAct)return;
     const shot=this.shots.find(item=>!item.active&&item.kind===this.spec.kind);if(!shot)return;
     const muzzle=this.muzzles[this.serial++%this.muzzles.length];muzzle.getWorldPosition(origin);muzzle.getWorldQuaternion(quaternion);
     direction.copy(forward).applyQuaternion(quaternion).normalize();
     shot.mesh.position.copy(origin);shot.mesh.quaternion.setFromUnitVectors(forward,direction);shot.velocity.copy(direction).multiplyScalar(this.spec.speed);
+    shot.netId=this.network?.fire(origin,direction)||null;
     shot.life=this.spec.life;shot.trail=0;shot.spec=this.spec;shot.active=shot.mesh.visible=true;this.shotsFired++;
     this.recoil=this.spec.kind==='machinegun'?.04:.14;
     this.effect(origin,'#ffe3a0',this.spec.kind==='machinegun'?.22:.48,.07);
     this.sound(this.spec.kind!=='machinegun');
   }
+  remoteShot(data) {
+    const spec=WEAPONS[data.body],shot=this.shots.find(s=>!s.active&&s.kind===spec.kind);if(!shot)return;
+    shot.mesh.position.fromArray(data.p);shot.velocity.fromArray(data.v);shot.mesh.quaternion.setFromUnitVectors(forward,shot.velocity.clone().normalize());shot.spec=spec;shot.life=spec.life;shot.trail=0;shot.netId=data.id;shot.active=shot.mesh.visible=true;
+    this.effect(shot.mesh.position,'#ffe3a0',spec.splash?.48:.22,.07);
+  }
+  stopShot(id){for(const s of this.shots)if(s.netId===id)s.active=s.mesh.visible=false;}
   applyDamage(target,amount,position) {
     const destroyed=this.arena.damage(target,amount);this.onHit(target,destroyed,position);if(destroyed)this.burst(target.position,true);
   }
   impact(shot,hit) {
     const point=shot.mesh.position,spec=shot.spec;
+    if(this.network?.enabled){shot.active=shot.mesh.visible=false;return;}
     if(hit.kind==='target')this.applyDamage(hit,spec.damage,point);
     if(spec.splash>0) {
-      for(const target of this.arena.targets){
+      for(const target of (this.network?.enabled?[...this.arena.targets,...this.network.targets()]:this.arena.targets)){
         if(!target.active||target===hit)continue;
         const distance=point.distanceTo(target.position);if(distance>spec.splash)continue;
         // Cover also shields the area damage from shells and rockets.
@@ -147,7 +153,7 @@ export class CombatSystem {
   update(dt,input,camera) {
     this.aim(dt,input,camera);this.cooldown=Math.max(0,this.cooldown-dt);
     if(input.fire&&this.cooldown<=0){this.shoot();this.cooldown=this.spec.interval;}
-    const items=[...this.arena.blockers,...this.arena.targets];
+    const items=[...this.arena.blockers,...this.arena.targets,...(this.network?.targets()||[])];
     for(const shot of this.shots) {
       if(!shot.active)continue;
       shot.previous.copy(shot.mesh.position);shot.next.copy(shot.previous).addScaledVector(shot.velocity,dt);

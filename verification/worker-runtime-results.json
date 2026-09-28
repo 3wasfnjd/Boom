@@ -1,0 +1,6 @@
+{
+  "status": "blocked",
+  "stage": "Wrangler local runtime startup",
+  "reason": "The execution environment rejects network-interface enumeration (uv_interface_addresses error 1). Worker bundle and Durable Object bindings pass wrangler deploy --dry-run. Battle logic and two-browser WebSocket tests pass through the Node adapter.",
+  "publicDeployment": false
+}
