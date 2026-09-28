@@ -29,7 +29,7 @@
 | الجهاز | القيادة | التصويب والإطلاق | الفرامل |
 |---|---|---|---|
 | الكمبيوتر | WASD أو الأسهم؛ S للفرملة ثم الرجوع، Shift للتعزيز | الماوس للتصويب وزره الأيسر للإطلاق، أو Space مع مساعدة التصويب | B |
-| الجوال | أسهم +: فوق بنزين، تحت فرامل ثم ريوس، يمين ويسار للتوجيه؛ الزوايا تجمع البنزين والتوجيه | اضغط دائرة «إطلاق» لمساعدة التصويب، أو اسحبها لتوجيه السلاح | زر «فرامل» |
+| الجوال | أسهم +: ضغطة فوق تثبّت البنزين، وضغطة تحت تثبّت الريوس، ويمين ويسار للتوجيه؛ ضغطة ثانية على الاتجاه أو الفرامل تلغي التثبيت | اضغط دائرة «إطلاق» لمساعدة التصويب، أو اسحبها لتوجيه السلاح | زر «فرامل» |
 | يد التحكم | العصا اليسرى للتوجيه، RT للتسارع وLT للرجوع، الدائرة/B للتعزيز | العصا اليمنى للتصويب وRB للإطلاق | المربع/X أو LB |
 
 أسهم اللمس مرتبطة باتجاه السيارة، وتدعم القيادة والرماية بإصبعين. عدّاد «القتل» يعرض قتل اللاعبين المعتمد من الخادم ولا يحسب صناديق التدريب. حلقة سماوية وعلامة علوية متحركة تميّزان سيارتك محليًا وتختفيان أثناء التحطم.
@@ -130,7 +130,7 @@ Run `node scripts/verify-physics.mjs verification/driving-tuning.mjs` for the co
 
 ### Touch response and perceived speed
 
-The previous analog touch curve is retained only as a physics reference. The current mobile D-pad uses full forward/reverse throttle and tire steering; diagonals support steering and throttle with one finger, alongside a second finger for firing. Pointer cancellation, leaving the pad, blur and hidden-page events release the controls.
+The previous analog touch curve is retained only as a physics reference. The current mobile D-pad uses full forward/reverse throttle and tire steering; latched throttle supports one-finger steering alongside a second finger for firing. Forward/reverse now latch on a tap, leaving the thumb free to steer; tap the same direction again or brake to clear. The compact pad keeps 44px buttons while reducing opposite button-center spacing from 100px to 72px. Pointer cancellation, unexpected capture loss, blur, hidden-page events and opening the room dialog clear the latch.
 
 The fixed-angle follow camera is closer and lower: portrait offset (2.2, 7.5, -10.7), landscape (4.4, 6.8, -10.8), with a small look-ahead in the direction of velocity. This makes ground movement more visible; it does not change vehicle speed.
 

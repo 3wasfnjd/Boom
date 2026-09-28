@@ -96,7 +96,7 @@
       "name": "h9: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 76,
+        "geometry": 75,
         "shots": 72,
         "effects": 72
       }
@@ -153,7 +153,7 @@
       "name": "shas: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 108,
+        "geometry": 107,
         "shots": 72,
         "effects": 72
       }
@@ -210,7 +210,7 @@
       "name": "datsun: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 140,
+        "geometry": 139,
         "shots": 72,
         "effects": 72
       }
@@ -231,8 +231,8 @@
       "name": "Repeated vehicle switching reuses loaded GPU geometry",
       "status": "passed",
       "details": {
-        "before": 140,
-        "after": 140
+        "before": 139,
+        "after": 139
       }
     },
     {
@@ -240,15 +240,23 @@
       "status": "passed"
     },
     {
-      "name": "Up arrow gives full throttle regardless of camera or vehicle heading",
+      "name": "Compact arrows keep 44px touch buttons and 72px opposite spacing",
       "status": "passed"
     },
     {
-      "name": "One finger diagonally holds acceleration and left steering",
+      "name": "Tap up latches throttle after lifting the finger and normal capture release",
       "status": "passed"
     },
     {
-      "name": "Diagonal right gives acceleration and right steering",
+      "name": "Tapping the latched direction a second time stops throttle",
+      "status": "passed"
+    },
+    {
+      "name": "Left steering preserves latched forward throttle",
+      "status": "passed"
+    },
+    {
+      "name": "Sliding to right preserves latched forward throttle",
       "status": "passed"
     },
     {
@@ -269,7 +277,7 @@
           0
         ],
         "padFire": true,
-        "padPointer": 3
+        "padPointer": 7
       }
     },
     {
@@ -301,6 +309,10 @@
       }
     },
     {
+      "name": "Releasing the brake does not restart latched acceleration",
+      "status": "passed"
+    },
+    {
       "name": "Touch cancellation clears steering, firing and braking",
       "status": "passed"
     },
@@ -310,6 +322,18 @@
     },
     {
       "name": "Down-arrow touch reverses from rest",
+      "status": "passed"
+    },
+    {
+      "name": "Reverse stays latched while steering",
+      "status": "passed"
+    },
+    {
+      "name": "Opposite arrow switches the latched drive direction",
+      "status": "passed"
+    },
+    {
+      "name": "Room dialog clears latched motion",
       "status": "passed"
     },
     {

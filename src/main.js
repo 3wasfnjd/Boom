@@ -44,7 +44,7 @@ async function start() {
   let battle=null;
   let id='h9',hits=0,hitFlash=0,selection=0,paused=false;
   const aimMark=document.getElementById('aim-mark'),hitMark=document.getElementById('hit-mark'),hitCount=document.getElementById('hit-count'),hint=document.getElementById('hint');
-  if('ontouchstart' in window)hint.textContent='↑ بنزين · ↓ ريوس · اسحب للزاوية للّف مع البنزين';
+  if('ontouchstart' in window)hint.textContent='↑ تثبيت البنزين · ↓ تثبيت الريوس · اضغط ثانية أو فرامل للإيقاف';
   const combat=new CombatSystem(scene,arena,()=>{hits++;hitFlash=.15;hitCount.textContent=`إصابات ${hits.toLocaleString('ar')}`;});
   function installCar(gltf,nextId) {
     vehicle.setModel(gltf.scene);id=nextId;if(battle)battle.car=id;

@@ -14,7 +14,7 @@ export class CombatInput {
       if(this.stick.length()>1)this.stick.normalize();knob.style.transform=`translate(${this.stick.x*24}px,${this.stick.y*24}px)`;
     });
     for(const event of ['pointerup','pointercancel','lostpointercapture'])pad.addEventListener(event,e=>{if(e.pointerId===this.padPointer)resetPad();});
-    brake.addEventListener('pointerdown',e=>{if(this.brakePointer!==null)return;e.preventDefault();this.brakePointer=e.pointerId;brake.setPointerCapture(e.pointerId);this.braking=true;brake.classList.add('active');});
+    brake.addEventListener('pointerdown',e=>{if(this.brakePointer!==null)return;e.preventDefault();this.brakePointer=e.pointerId;brake.setPointerCapture(e.pointerId);this.braking=true;this.drive.stopThrottle();brake.classList.add('active');});
     for(const event of ['pointerup','pointercancel','lostpointercapture'])brake.addEventListener(event,e=>{if(e.pointerId===this.brakePointer)resetBrake();});
     const readMouse=e=>{const r=canvas.getBoundingClientRect();this.mouse.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);};
     canvas.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;readMouse(e);this.mouseAiming=true;});
@@ -27,8 +27,9 @@ export class CombatInput {
     window.addEventListener('blur',this.release);document.addEventListener('visibilitychange',()=>{if(document.hidden)this.release();});
   }
   read(worldAngle,heading=0) {
-    const input=this.drive.update(worldAngle,heading);
     const gp=Array.from(navigator.getGamepads?.()??[]).find(Boolean);
+    if(this.braking||this.drive.keys.KeyB||this.drive.keys.ControlLeft||gp?.buttons[2]?.pressed||gp?.buttons[4]?.pressed)this.drive.stopThrottle();
+    const input=this.drive.update(worldAngle,heading);
     input.handbrake ||= this.braking||!!gp?.buttons[4]?.pressed;
     const aim=new THREE.Vector2();let mode='assist';
     if(this.padFire&&this.stick.length()>.2){mode='stick';aim.copy(this.stick);}
