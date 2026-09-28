@@ -5,7 +5,9 @@
 <meta name="theme-color" content="#202926"><meta name="description" content="BOOM — ساحة تجربة سيارات موتري بأسلحة وقيادة هجولة">
 <title>BOOM • ساحة الاستراحة</title>
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
-<link rel="stylesheet" href="./src/game.css?v=analog-chase-1">
+<link rel="stylesheet" href="./src/game.css?v=chase-load-1">
+<link rel="stylesheet" href="./src/loading.css?v=chase-load-1">
+<link rel="preload" as="image" href="./assets/loading/combat-cars.webp">
 </head>
 <body>
 <canvas id="game" aria-label="ساحة تجربة السيارات"></canvas>
@@ -29,7 +31,25 @@
  <button id="brake" aria-label="فرامل">فرامل</button>
  <div id="aim-pad" role="button" tabindex="0" aria-label="اضغط للإطلاق أو اسحب للتصويب"><div class="aim-ring"><span id="aim-knob">إطلاق</span></div></div>
 </div>
-<div id="loading"><b>BOOM</b><span id="loading-message">تجهيز ساحة الاستراحة…</span><div class="load-track"><i></i></div><button id="retry" hidden>إعادة المحاولة</button></div>
-<script>window.addEventListener('error',function(){var e=document.getElementById('loading');if(e&&!e.hidden){document.getElementById('loading-message').textContent='تعذر تشغيل الساحة. أعد المحاولة.';document.getElementById('retry').hidden=false;}});document.getElementById('retry').onclick=function(){location.reload()};</script>
-<script type="module" src="./app.min.js?v=analog-chase-1"></script>
+<section id="loading" aria-label="تحميل BOOM">
+ <div class="load-streaks" aria-hidden="true"></div>
+ <header class="load-brand"><span>ABODEN GAMES</span><span class="load-edition">CAR COMBAT</span></header>
+ <div class="load-layout">
+  <div class="load-hero">
+   <div class="load-title"><span class="load-kicker">اربط الحزام!</span><h1 dir="ltr">BOOM<span aria-hidden="true">!</span></h1><p>طارد. راوِغ. وسيطر على الساحة.</p></div>
+   <div class="load-art"><div class="load-burst" aria-hidden="true"></div><img src="./assets/loading/combat-cars.webp" width="1400" height="900" alt="سيارات هافال وشاص وددسن المسلحة من اللعبة" fetchpriority="high" draggable="false"></div>
+  </div>
+  <div class="load-panel">
+   <div class="load-caption"><span class="load-dot"></span><strong>المطاردة على وشك البدء</strong></div>
+   <div class="load-progress-label"><span id="loading-message" role="status">تجهيز المحركات…</span><b id="loading-percent" dir="ltr">0%</b></div>
+   <div class="load-road" id="loading-progress" role="progressbar" aria-label="تجهيز اللعبة" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="loading-fill"><span class="load-racer" aria-hidden="true">➤</span></div></div>
+   <div class="load-milestones" aria-hidden="true"><span>المحركات</span><span>السيارات</span><span>الساحة</span><span>انطلق!</span></div>
+   <p class="load-tip">خذ المنعطف… واترك لهم المفاجأة!</p>
+   <button id="retry" hidden>إعادة المحاولة ↻</button>
+  </div>
+ </div>
+ <footer class="load-footer"><span>مطاردات سريعة · سيارات مسلّحة</span><span dir="ltr">DRIVE • DODGE • DOMINATE</span></footer>
+</section>
+<script>window.addEventListener('error',function(){var e=document.getElementById('loading');if(e&&!e.hidden){document.getElementById('loading-message').textContent='تعذر تشغيل الساحة. أعد المحاولة.';document.getElementById('retry').hidden=false;e.classList.add('load-error');}});document.getElementById('retry').onclick=function(){location.reload()};</script>
+<script type="module" src="./app.min.js?v=chase-load-1"></script>
 </body></html>

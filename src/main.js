@@ -12,6 +12,17 @@ import {PlayerHighlight} from './PlayerHighlight.js';
 import {MotriAtmosphere} from './MotriAtmosphere.js';
 
 const loading=document.getElementById('loading'),message=document.getElementById('loading-message');
+// Sixteen completed startup jobs, not a time-based or estimated byte counter.
+let loadedJobs=0;
+function loadingProgress(){
+ if(loading.classList.contains('load-error'))return;
+ const percent=Math.min(100,Math.round(++loadedJobs/16*100));
+ document.getElementById('loading-fill').style.width=percent+'%';document.getElementById('loading-percent').textContent=percent+'%';
+ document.getElementById('loading-progress').setAttribute('aria-valuenow',String(percent));
+ message.textContent=percent===100?'جاهزين… انطلق!':percent<25?'تشغيل المحركات…':percent<65?'تجهيز السيارات والأسلحة…':'تجهيز ساحة المطاردة…';
+ loading.classList.toggle('load-ready',percent===100);
+}
+const loadingJob=promise=>promise.then(value=>{loadingProgress();return value;});
 async function start() {
   const renderer=new THREE.WebGLRenderer({canvas:document.getElementById('game'),antialias:true,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
@@ -26,18 +37,18 @@ async function start() {
   let worldAngle=Math.PI,cameraHeading=0;
   const resize=()=>{renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();};
   window.addEventListener('resize',resize);resize();
-  await loadPhysics();const world=new PhysicsWorld();
+  await loadingJob(loadPhysics());const world=new PhysicsWorld();
   const decoder=new DRACOLoader().setDecoderPath(new URL('vendor/draco/',document.baseURI).href).setDecoderConfig({type:'wasm'}).setWorkerLimit(1);
   const loader=new GLTFLoader().setDRACOLoader(decoder),cache=new Map();
   const loadCar=id=>{if(!cache.has(id))cache.set(id,loader.loadAsync(new URL(`models/motri-${id}-combat.glb`,document.baseURI).href).catch(error=>{cache.delete(id);throw error;}));return cache.get(id);};
   const worldModels={house:'rest-house',scenery:'scenery',fence:'fence',brick:'brick',lamp:'lamp',oak:'oak'},worldAssets={};
   const textures=new THREE.TextureLoader();
   const worldLoading=Promise.all([
-    ...Object.entries(worldModels).map(async([key,file])=>{worldAssets[key]=(await loader.loadAsync(new URL(`models/world/motri-${file}.glb`,document.baseURI).href)).scene;}),
-    ...[['palette','png'],['paving','webp'],['terrain','png'],['slabs','png'],['foliage','png']].map(async([key,extension])=>{worldAssets[key]=await textures.loadAsync(new URL(`models/world/motri-${key}.${extension}`,document.baseURI).href);}),
-    fetch(new URL('models/world/motri-heightfield.bin',document.baseURI)).then(response=>{if(!response.ok)throw Error('Terrain data unavailable');return response.arrayBuffer();}).then(data=>{worldAssets.heightfield=data;})
+    ...Object.entries(worldModels).map(async([key,file])=>{worldAssets[key]=(await loadingJob(loader.loadAsync(new URL(`models/world/motri-${file}.glb`,document.baseURI).href))).scene;}),
+    ...[['palette','png'],['paving','webp'],['terrain','png'],['slabs','png'],['foliage','png']].map(async([key,extension])=>{worldAssets[key]=await loadingJob(textures.loadAsync(new URL(`models/world/motri-${key}.${extension}`,document.baseURI).href));}),
+    loadingJob(fetch(new URL('models/world/motri-heightfield.bin',document.baseURI)).then(response=>{if(!response.ok)throw Error('Terrain data unavailable');return response.arrayBuffer();}).then(data=>{worldAssets.heightfield=data;}))
   ]);
-  const [firstCar,crate]=await Promise.all([loadCar('h9'),loader.loadAsync(new URL('models/world/motri-crate.glb',document.baseURI).href),worldLoading]);decoder.dispose();
+  const [firstCar,crate]=await Promise.all([loadingJob(loadCar('h9')),loadingJob(loader.loadAsync(new URL('models/world/motri-crate.glb',document.baseURI).href)),worldLoading]);decoder.dispose();
   const arena=new Arena(scene,world,crate.scene,worldAssets),vehicle=new MotriVehicle(world,scene),input=new CombatInput(renderer.domElement);
   const atmosphere=new MotriAtmosphere({scene,renderer,environment:arena.environment,sun,ambient});
   const playerHighlight=new PlayerHighlight(scene,arena.environment.terrain);
@@ -95,7 +106,9 @@ async function start() {
     renderer.render(scene,camera);
   }
   battle=new BattleClient({scene,world,arena,vehicle,combat,input,camera,loadCar,selectCar});combat.network=battle;await battle.start();
-  moveCamera(1);tick(input.read(worldAngle,vehicle.heading));draw();loading.hidden=true;
+  moveCamera(1);tick(input.read(worldAngle,vehicle.heading));draw();loadingProgress();
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  loading.classList.add('load-exit');await new Promise(resolve=>setTimeout(resolve,240));loading.hidden=true;
   let last=performance.now();const clock=new FixedStepClock();
   renderer.setAnimationLoop(now=>{
     const elapsed=(now-last)/1000;last=now;
@@ -111,4 +124,4 @@ async function start() {
     snapshot(){return {car:id,position:vehicle.container.position.toArray(),speed:vehicle.linearSpeed,yaw:vehicle.heading,hits,shotsFired:combat.shotsFired,activeShots:combat.shots.filter(shot=>shot.active).length,targets:arena.targets.map(t=>({id:t.id,health:t.health,active:t.active})),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,memory:{...renderer.info.memory},environment:arena.environment.stats,physics:vehicle.snapshot()};}
   };
 }
-start().catch(error=>{console.error(error);loading.hidden=false;message.textContent='تعذر تشغيل الساحة. تحقق من الاتصال ودعم WebGL، ثم أعد المحاولة.';document.getElementById('retry').hidden=false;});
+start().catch(error=>{console.error(error);loading.hidden=false;loading.classList.remove('load-exit');loading.classList.add('load-error');message.textContent='تعذر تشغيل الساحة. تحقق من الاتصال ودعم WebGL، ثم أعد المحاولة.';document.getElementById('retry').hidden=false;});
