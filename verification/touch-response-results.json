@@ -1,0 +1,135 @@
+{
+  "status": "passed",
+  "clocks": [
+    {
+      "fps": 60,
+      "seconds": 5.999999999999984,
+      "ticks": 360
+    },
+    {
+      "fps": 30,
+      "seconds": 5.999999999999984,
+      "ticks": 360
+    },
+    {
+      "fps": 15,
+      "seconds": 5.999999999999984,
+      "ticks": 360
+    },
+    {
+      "fps": 12,
+      "seconds": 5.999999999999984,
+      "ticks": 360
+    },
+    {
+      "fps": 10,
+      "seconds": 5.999999999999984,
+      "ticks": 360
+    },
+    {
+      "fps": 8,
+      "seconds": 5.999999999999984,
+      "ticks": 360
+    },
+    {
+      "fps": 5,
+      "seconds": 5.999999999999984,
+      "ticks": 360
+    }
+  ],
+  "durationSeconds": 6,
+  "units": "render units; not calibrated km/h",
+  "rows": [
+    {
+      "travel": 0,
+      "previous": {
+        "throttle": 0,
+        "speed": 0,
+        "distance": -5.588735030315206e-11
+      },
+      "current": {
+        "throttle": 0,
+        "speed": 0,
+        "distance": -5.588735030315206e-11
+      }
+    },
+    {
+      "travel": 0.25,
+      "previous": {
+        "throttle": 0.015625,
+        "speed": 0.39504947934502105,
+        "distance": 1.3056198358535767
+      },
+      "current": {
+        "throttle": 0.31484267891437556,
+        "speed": 7.427820633465304,
+        "distance": 26.100841522216797
+      }
+    },
+    {
+      "travel": 0.4,
+      "previous": {
+        "throttle": 0.06400000000000002,
+        "speed": 1.618039183268626,
+        "distance": 5.347786903381348
+      },
+      "current": {
+        "throttle": 0.5163095019676858,
+        "speed": 8.141333778920526,
+        "distance": 35.561214447021484
+      }
+    },
+    {
+      "travel": 0.5,
+      "previous": {
+        "throttle": 0.125,
+        "speed": 3.160094496513332,
+        "distance": 10.4448881149292
+      },
+      "current": {
+        "throttle": 0.6428176802808613,
+        "speed": 8.473550877343001,
+        "distance": 39.06752014160156
+      }
+    },
+    {
+      "travel": 0.75,
+      "previous": {
+        "throttle": 0.421875,
+        "speed": 7.86164893203414,
+        "distance": 32.03369140625
+      },
+      "current": {
+        "throttle": 0.9422687005681151,
+        "speed": 9.127705634000394,
+        "distance": 42.80879211425781
+      }
+    },
+    {
+      "travel": 0.8,
+      "previous": {
+        "throttle": 0.5120000000000001,
+        "speed": 8.129435611938508,
+        "distance": 35.42146682739258
+      },
+      "current": {
+        "throttle": 1,
+        "speed": 9.244803661824118,
+        "distance": 43.43427658081055
+      }
+    },
+    {
+      "travel": 1,
+      "previous": {
+        "throttle": 1,
+        "speed": 9.244803661824118,
+        "distance": 43.43427658081055
+      },
+      "current": {
+        "throttle": 1,
+        "speed": 9.244803661824118,
+        "distance": 43.43427658081055
+      }
+    }
+  ]
+}

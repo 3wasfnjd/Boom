@@ -31,7 +31,7 @@
     {
       "source": "sources/Game/Player.js + sources/Game/Inputs/Nipple.js",
       "destination": "src/MotriControls.js",
-      "adaptation": "Port keyboard/gamepad steering and cubic touch throttle, 270-degree forward cone and reverse steering; retain Boom touch pad and independent firing pointer. Space and number keys remain combat controls."
+      "adaptation": "Port keyboard/gamepad steering, 270-degree forward cone and reverse steering; retain Boom touch pad and independent firing pointer. Boom replaces the source cubic touch throttle with a responsive curve (6% dead zone, full throttle at 80% travel), including initial pointerdown sampling. Space and number keys remain combat controls."
     },
     {
       "source": "sources/Game/World/VisualVehicle.js",

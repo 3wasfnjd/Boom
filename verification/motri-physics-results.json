@@ -110,7 +110,7 @@
       }
     },
     {
-      "name": "Touch throttle follows Motri cubic response",
+      "name": "Compact touch pad reaches useful throttle at half travel",
       "status": "passed"
     },
     {

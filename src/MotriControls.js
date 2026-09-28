@@ -1,13 +1,14 @@
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const angle=(a,b)=>Math.atan2(Math.sin(b-a),Math.cos(b-a));
-// Player.updatePrePhysics + Nipple's forward/reverse cone from Motri.
+// Motri's forward/reverse cone, with a responsive curve for Boom's small touch pad.
 // The existing compact touch pad replaces its world-space ring so a second
 // finger can aim/fire. Steering is tire steering; it never rotates the body.
 export function motriTouchInput(x,z,progress,heading){
  let delta=angle(heading,Math.atan2(x,z));const forward=Math.abs(delta)<Math.PI*.75;
  if(!forward)delta=angle(heading+Math.PI,Math.atan2(x,z));
  const steering=clamp(delta/(Math.PI/4),-1,1)*(forward?1:-1);
- return {x:steering,z:Math.pow(clamp(progress,0,1),3)*(forward?1:-1)};
+ const throttle=Math.pow(clamp((progress-.06)/.74,0,1),.85);
+ return {x:steering,z:throttle*(forward?1:-1)};
 }
 export class MotriControls {
  constructor(){
@@ -19,8 +20,9 @@ export class MotriControls {
   if(!('ontouchstart' in window))return;
   const zone=document.createElement('div');zone.className='steer-zone';zone.innerHTML='<div class="steer-base"><div class="steer-knob"></div></div>';document.body.appendChild(zone);
   const base=zone.firstElementChild,knob=base.firstElementChild;
-  zone.addEventListener('pointerdown',e=>{if(this.steerPointerId!==null)return;e.preventDefault();this.steerPointerId=e.pointerId;zone.setPointerCapture(e.pointerId);this.touchActive=true;this.touchDirX=this.touchDirY=0;base.classList.add('active');});
-  zone.addEventListener('pointermove',e=>{if(e.pointerId!==this.steerPointerId)return;const r=base.getBoundingClientRect();let x=(e.clientX-r.left-r.width/2)/40,y=(e.clientY-r.top-r.height/2)/40;const length=Math.hypot(x,y);if(length>1){x/=length;y/=length;}this.touchDirX=x;this.touchDirY=y;knob.style.transform=`translate(${x*40}px,${y*40}px)`;});
+  const sample=e=>{const r=base.getBoundingClientRect();let x=(e.clientX-r.left-r.width/2)/40,y=(e.clientY-r.top-r.height/2)/40;const length=Math.hypot(x,y);if(length>1){x/=length;y/=length;}this.touchDirX=x;this.touchDirY=y;knob.style.transform=`translate(${x*40}px,${y*40}px)`;};
+  zone.addEventListener('pointerdown',e=>{if(this.steerPointerId!==null)return;e.preventDefault();this.steerPointerId=e.pointerId;zone.setPointerCapture(e.pointerId);this.touchActive=true;sample(e);base.classList.add('active');});
+  zone.addEventListener('pointermove',e=>{if(e.pointerId===this.steerPointerId)sample(e);});
   const end=e=>{if(e&&e.pointerId!==this.steerPointerId)return;this.steerPointerId=null;this.touchActive=false;this.touchDirX=this.touchDirY=0;knob.style.transform='';base.classList.remove('active');};
   for(const name of ['pointerup','pointercancel','lostpointercapture'])zone.addEventListener(name,end);
   window.addEventListener('blur',()=>end());document.addEventListener('visibilitychange',()=>{if(document.hidden)end();});

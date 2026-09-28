@@ -10,26 +10,26 @@
       "status": "passed",
       "details": {
         "position": [
-          2.962801488592959e-7,
-          0.5939603447914124,
-          -0.4715040624141693
+          4.053096915868082e-7,
+          0.5934303998947144,
+          2.2642955780029297
         ],
-        "speed": 4.05047665079862
+        "speed": 7.643050310413936
       }
     },
     {
       "name": "Steering changes heading while driving",
       "status": "passed",
       "details": {
-        "yaw": 0.47665387588371855
+        "yaw": 0.2702453353272195
       }
     },
     {
       "name": "Handbrake reduces speed under the same throttle",
       "status": "passed",
       "details": {
-        "before": 4.05047665079862,
-        "after": -0.01520847477364205
+        "before": 7.643050310413936,
+        "after": 0.019821806149871956
       }
     },
     {
@@ -37,11 +37,11 @@
       "status": "passed",
       "details": {
         "position": [
-          -2.1110325576501054e-7,
-          0.593994677066803,
-          -9.578535079956055
+          -2.5897386990436644e-7,
+          0.593517541885376,
+          -10.76414966583252
         ],
-        "speed": -3.715688678583973
+        "speed": -6.09640455093217
       }
     },
     {
@@ -240,6 +240,20 @@
       "status": "passed"
     },
     {
+      "name": "Half-travel touch starts driving on pointerdown without another move",
+      "status": "passed",
+      "details": {
+        "throttle": 0.6428176802808613
+      }
+    },
+    {
+      "name": "Eighty percent stick travel reaches full throttle",
+      "status": "passed",
+      "details": {
+        "throttle": 1
+      }
+    },
+    {
       "name": "Real touch joystick drives the car",
       "status": "passed"
     },
@@ -251,7 +265,7 @@
       "name": "Dragging the fire pad rotates the turret",
       "status": "passed",
       "details": {
-        "yaw": -1.5708361533754587,
+        "yaw": -1.619755794886213,
         "stick": [
           0.8571428571428571,
           0
@@ -262,7 +276,31 @@
     },
     {
       "name": "Touch handbrake works while driving and shooting",
-      "status": "passed"
+      "status": "passed",
+      "details": {
+        "before": -0.7464400330330916,
+        "after": 0.019149949548576004,
+        "position": [
+          -4.930391311645508,
+          0.5948435068130493,
+          15.126041412353516
+        ],
+        "controls": {
+          "braking": true,
+          "player": {
+            "accelerating": 0,
+            "steering": -1,
+            "braking": 1,
+            "boosting": 0,
+            "suspensions": [
+              "low",
+              "low",
+              "low",
+              "low"
+            ]
+          }
+        }
+      }
     },
     {
       "name": "Touch cancellation clears steering, firing and braking",

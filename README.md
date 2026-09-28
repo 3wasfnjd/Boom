@@ -123,3 +123,11 @@ npm run verify:world
 Boom overrides the imported Motri defaults in `src/MotriVehicle.js`: engine force 420, soft speed threshold 14 native units. Steering reduces gradually at speed. Powered forward turns ease rear tire grip; measured slip progressively restores grip, and releasing steering restores normal traction. No forced chassis rotation is applied.
 
 Run `node scripts/verify-physics.mjs verification/driving-tuning.mjs` for the comparative driving test. On a flat surface after six seconds of full throttle, rendered speed increased from 5.14 to 9.24 units/s. Steering tests cover partial and full left/right turns, recovery and braking; these are simulated physics results, not real-phone performance measurements.
+
+### Touch response and perceived speed
+
+The source cubic joystick curve gave only 12.5% throttle at half stick travel. Boom now gives 64.3% at half travel and full throttle at 80%; a 6% neutral zone prevents creep. Touch position is sampled immediately on press. The existing tested engine and drift tune is unchanged. In a six-second flat-ground comparison, half-travel speed rises from 3.16 to 8.47 render units/s; full travel remains 9.24. These are world units, not calibrated km/h. Run `node scripts/verify-physics.mjs verification/touch-response.mjs` for the measurements.
+
+The fixed-angle follow camera is closer and lower: portrait offset (2.2, 7.5, -10.7), landscape (4.4, 6.8, -10.8), with a small look-ahead in the direction of velocity. This makes ground movement more visible; it does not change vehicle speed.
+
+`FixedStepClock` preserves 60 simulation steps per second at render rates down to 4 FPS; it caps catch-up after long stalls at 250 ms. The previous five-step limit discarded simulation time below 12 FPS. Tests cover 60/30/15/12/10/8/5 FPS and tab-resume limits. This fixes simulation slowdown and does not raise rendered FPS. No physical phone frame-rate measurement is available.

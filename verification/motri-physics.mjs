@@ -31,7 +31,7 @@ const step=(world,vehicle,n,input={x:0,z:0})=>{for(let i=0;i<n;i++){vehicle.preS
 }
 {
  const half=motriTouchInput(0,1,.5,0),full=motriTouchInput(0,1,1,0),back=motriTouchInput(0,-1,1,0),left=motriTouchInput(1,1,1,0);
- check('Touch throttle follows Motri cubic response',half.z===.125&&full.z===1);
+ check('Compact touch pad reaches useful throttle at half travel',half.z>.6&&half.z<.7&&full.z===1);
  check('Dragging behind the car selects reverse',back.z===-1&&Math.abs(back.x)<1e-9);
  check('Touch target turns the wheels with bounded steering',left.x===1&&left.z===1);
 }
