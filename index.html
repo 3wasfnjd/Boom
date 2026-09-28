@@ -5,7 +5,7 @@
 <meta name="theme-color" content="#202926"><meta name="description" content="BOOM — ساحة تجربة سيارات موتري بأسلحة وقيادة هجولة">
 <title>BOOM • ساحة الاستراحة</title>
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
-<link rel="stylesheet" href="./src/game.css?v=world-1">
+<link rel="stylesheet" href="./src/game.css?v=motri-physics-1">
 </head>
 <body>
 <canvas id="game" aria-label="ساحة تجربة السيارات"></canvas>
@@ -19,12 +19,12 @@
 <aside class="game-hud readout"><span id="weapon-name">رشاش مزدوج</span><span id="hit-count">إصابات ٠</span></aside>
 <div id="aim-mark" aria-hidden="true"><i></i></div>
 <div id="hit-mark" aria-hidden="true">×</div>
-<div id="hint">WASD أو الأسهم للقيادة · الماوس للتصويب والإطلاق · B للهاندبريك</div>
+<div id="hint">WASD أو الأسهم للقيادة · الماوس للتصويب والإطلاق · B للفرامل</div>
 <div class="game-hud actions">
- <button id="brake" aria-label="هاندبريك">هاندبريك</button>
+ <button id="brake" aria-label="فرامل">فرامل</button>
  <div id="aim-pad" role="button" tabindex="0" aria-label="اضغط للإطلاق أو اسحب للتصويب"><div class="aim-ring"><span id="aim-knob">إطلاق</span></div></div>
 </div>
 <div id="loading"><b>BOOM</b><span id="loading-message">تجهيز ساحة الاستراحة…</span><div class="load-track"><i></i></div><button id="retry" hidden>إعادة المحاولة</button></div>
 <script>window.addEventListener('error',function(){var e=document.getElementById('loading');if(e&&!e.hidden){document.getElementById('loading-message').textContent='تعذر تشغيل الساحة. أعد المحاولة.';document.getElementById('retry').hidden=false;}});document.getElementById('retry').onclick=function(){location.reload()};</script>
-<script type="module" src="./app.min.js?v=world-1"></script>
+<script type="module" src="./app.min.js?v=motri-physics-1"></script>
 </body></html>

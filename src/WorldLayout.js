@@ -1,6 +1,6 @@
 // BOOM's driving layout. Prefab geometry and palettes come from Motri.
 export const ARENA_HALF = 46;
-export const SPAWN = [0,.5,-6];
+export const SPAWN = [0,.8,-6];
 export const TARGET_POSITIONS = [[0,9],[9,16],[17,6],[-18,4],[24,-12],[0,-24]];
 export const REST_HOUSE = {position:[-21,.018,-8],scale:.58,sideExit:[18,25]};
 export const BRIDGE = {position:[20,.025,-20],scale:.7,yaw:Math.PI/2};

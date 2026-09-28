@@ -1,11 +1,8 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
-import {registerAll,updateWorld,rigidBody} from 'crashcat';
-import {Vehicle} from '../verification/Vehicle.js';
-import {createPhysicsWorld} from '../verification/World.js';
-import {createSphereBody} from '../verification/SphereBody.js';
-import {createHajwalaModel} from './prepareMotriVehicle.js';
+import {PhysicsWorld,loadPhysics} from './PhysicsWorld.js';
+import {MotriVehicle} from './MotriVehicle.js';
 import {Arena,SPAWN} from './Arena.js';
 import {CombatInput} from './CombatInput.js';
 import {CombatSystem,WEAPONS} from './CombatSystem.js';
@@ -25,7 +22,7 @@ async function start() {
   let worldAngle=Math.atan2(cameraOffset.x,cameraOffset.z);
   const resize=()=>{renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;cameraOffset.set(camera.aspect<.85?3:7,camera.aspect<.85?13:11.5,camera.aspect<.85?-16:-14);worldAngle=Math.atan2(cameraOffset.x,cameraOffset.z);camera.updateProjectionMatrix();};
   window.addEventListener('resize',resize);resize();
-  registerAll();const world=createPhysicsWorld();
+  await loadPhysics();const world=new PhysicsWorld();
   const decoder=new DRACOLoader().setDecoderPath(new URL('vendor/draco/',document.baseURI).href).setDecoderConfig({type:'wasm'}).setWorkerLimit(1);
   const loader=new GLTFLoader().setDRACOLoader(decoder),cache=new Map();
   const loadCar=id=>{if(!cache.has(id))cache.set(id,loader.loadAsync(new URL(`models/motri-${id}-combat.glb`,document.baseURI).href).catch(error=>{cache.delete(id);throw error;}));return cache.get(id);};
@@ -37,23 +34,17 @@ async function start() {
     fetch(new URL('models/world/motri-heightfield.bin',document.baseURI)).then(response=>{if(!response.ok)throw Error('Terrain data unavailable');return response.arrayBuffer();}).then(data=>{worldAssets.heightfield=data;})
   ]);
   const [firstCar,crate]=await Promise.all([loadCar('h9'),loader.loadAsync(new URL('models/world/motri-crate.glb',document.baseURI).href),worldLoading]);decoder.dispose();
-  const arena=new Arena(scene,world,crate.scene,worldAssets),body=createSphereBody(world,SPAWN),input=new CombatInput(renderer.domElement);
-  let vehicle,id='h9',hits=0,hitFlash=0,selection=0,paused=false;
+  const arena=new Arena(scene,world,crate.scene,worldAssets),vehicle=new MotriVehicle(world,scene),input=new CombatInput(renderer.domElement);
+  let id='h9',hits=0,hitFlash=0,selection=0,paused=false;
   const aimMark=document.getElementById('aim-mark'),hitMark=document.getElementById('hit-mark'),hitCount=document.getElementById('hit-count'),hint=document.getElementById('hint');
   if('ontouchstart' in window)hint.textContent='حرّك العصا اليسرى للقيادة · اضغط إطلاق للرماية أو اسحبه للتصويب';
   const combat=new CombatSystem(scene,arena,()=>{hits++;hitFlash=.15;hitCount.textContent=`إصابات ${hits.toLocaleString('ar')}`;});
   function installCar(gltf,nextId) {
-    const previous=vehicle,next=new Vehicle();
-    next.physicsWorld=world;next.rigidBody=body;next.spawnPos=[...SPAWN];next.spawnAngle=0;
-    next.init(createHajwalaModel(gltf.scene,.5));next.spherePos.set(...body.position);
-    const model=next.container.children[0];next.groundPivot=new THREE.Group();next.groundPivot.name='terrain-pose';next.container.add(next.groundPivot);next.groundPivot.add(model);
-    next.container.position.set(body.position[0],body.position[1]-.5,body.position[2]);next.prevModelPos.copy(next.container.position);
-    if(previous){next.container.quaternion.copy(previous.container.quaternion);next.linearSpeed=previous.linearSpeed;next.angularSpeed=previous.angularSpeed;next.acceleration=previous.acceleration;scene.remove(previous.container);}
-    next.container.traverse(node=>{if(node.isMesh)node.castShadow=node.receiveShadow=true;});scene.add(next.container);vehicle=next;id=nextId;
+    vehicle.setModel(gltf.scene);id=nextId;
     combat.bind(vehicle,id);document.getElementById('weapon-name').textContent=WEAPONS[id].label;
     document.querySelectorAll('[data-car]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.car===id)));
   }
-  installCar(firstCar,'h9');
+  installCar(firstCar,'h9');vehicle.reset(...SPAWN);
   async function selectCar(nextId) {
     if(!WEAPONS[nextId])return;const token=++selection;
     document.querySelectorAll('[data-car]').forEach(button=>button.disabled=button.dataset.car===nextId);
@@ -62,10 +53,7 @@ async function start() {
     finally{if(token===selection)document.querySelectorAll('[data-car]').forEach(button=>button.disabled=false);}
   }
   function reset() {
-    input.release();rigidBody.setPosition(world,body,[...SPAWN],true);rigidBody.setLinearVelocity(world,body,[0,0,0]);rigidBody.setAngularVelocity(world,body,[0,0,0]);
-    vehicle.spherePos.set(...SPAWN);vehicle.sphereVel.set(0,0,0);vehicle.linearSpeed=vehicle.angularSpeed=vehicle.acceleration=0;
-    vehicle.container.position.set(SPAWN[0],0,SPAWN[2]);vehicle.container.quaternion.identity();vehicle.prevModelPos.copy(vehicle.container.position);vehicle.modelVelocity.set(0,0,0);
-    vehicle.groundPivot.quaternion.identity();vehicle.bodyNode.rotation.set(0,0,0);vehicle.bodyNode.position.y=vehicle._bodyRestY;vehicle.wheels.forEach(wheel=>wheel.rotation.set(0,0,0));
+    input.release();vehicle.reset(...SPAWN);
     combat.clear();arena.reset();hits=0;hitFlash=0;hitCount.textContent='إصابات ٠';follow.set(SPAWN[0],.3,SPAWN[2]+2.5);moveCamera(1);
   }
   document.getElementById('reset').addEventListener('click',reset);
@@ -77,7 +65,7 @@ async function start() {
     sun.target.position.copy(vehicle.container.position);sun.position.copy(sun.target.position).add(new THREE.Vector3(-10,17,-6));sun.target.updateMatrixWorld();
   }
   function tick(controls) {
-    const dt=1/60;updateWorld(world,null,dt);vehicle.update(dt,controls.drive);arena.environment.terrain.alignVehicle(vehicle,dt);moveCamera(dt);arena.update(dt,camera);combat.update(dt,controls,camera);hitFlash=Math.max(0,hitFlash-dt);
+    const dt=1/60;vehicle.preStep(controls.drive,dt);world.step();vehicle.postStep(dt);if(vehicle.container.position.y< -5)reset();moveCamera(dt);arena.update(dt,camera);combat.update(dt,controls,camera);hitFlash=Math.max(0,hitFlash-dt);
   }
   function draw() {
     projected.copy(combat.aimPoint).project(camera);
@@ -86,22 +74,22 @@ async function start() {
     hitMark.style.opacity=String(Math.min(1,hitFlash*12));hitMark.style.left=aimMark.style.left;hitMark.style.top=aimMark.style.top;
     renderer.render(scene,camera);
   }
-  moveCamera(1);tick(input.read(worldAngle));draw();loading.hidden=true;
+  moveCamera(1);tick(input.read(worldAngle,vehicle.heading));draw();loading.hidden=true;
   let last=performance.now(),accumulator=0;
   renderer.setAnimationLoop(now=>{
     const elapsed=Math.min((now-last)/1000,.1);last=now;
     if(document.hidden||paused){accumulator=0;return;}
-    accumulator+=elapsed;const controls=input.read(worldAngle);let steps=0;
+    accumulator+=elapsed;const controls=input.read(worldAngle,vehicle.heading);let steps=0;
     while(accumulator>=1/60&&steps<5){tick(controls);accumulator-=1/60;steps++;}
     if(steps===5)accumulator=0;draw();
   });
   // The diagnostics API is opt-in and kept out of the player's interface.
   if(new URLSearchParams(location.search).has('debug'))window.__BOOM__={
-    get vehicle(){return vehicle;},scene,arena,combat,input,world,body,camera,renderer,selectCar,reset,
-    teleport(x,z,angle=0){reset();const y=arena.environment.terrain.heightAt(x,z);rigidBody.setPosition(world,body,[x,y+.55,z],true);vehicle.spherePos.set(x,y+.55,z);vehicle.container.position.set(x,y+.05,z);vehicle.prevModelPos.copy(vehicle.container.position);vehicle.container.rotation.y=angle;follow.set(x,.3,z+2.5);moveCamera(1);},
+    get vehicle(){return vehicle;},get body(){return vehicle.body;},scene,arena,combat,input,world,camera,renderer,selectCar,reset,
+    teleport(x,z,angle=0){reset();vehicle.reset(x,arena.environment.terrain.heightAt(x,z)+SPAWN[1],z,angle);follow.copy(vehicle.container.position);moveCamera(1);},
     pause(value=true){paused=value;},
-    step(frames=1,controls){for(let i=0;i<frames;i++)tick(controls||input.read(worldAngle));draw();},
-    snapshot(){return {car:id,position:vehicle.container.position.toArray(),speed:vehicle.linearSpeed,yaw:vehicle.container.rotation.y,hits,shotsFired:combat.shotsFired,activeShots:combat.shots.filter(shot=>shot.active).length,targets:arena.targets.map(t=>({id:t.id,health:t.health,active:t.active})),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,memory:{...renderer.info.memory},environment:arena.environment.stats};}
+    step(frames=1,controls){for(let i=0;i<frames;i++)tick(controls||input.read(worldAngle,vehicle.heading));draw();},
+    snapshot(){return {car:id,position:vehicle.container.position.toArray(),speed:vehicle.linearSpeed,yaw:vehicle.heading,hits,shotsFired:combat.shotsFired,activeShots:combat.shots.filter(shot=>shot.active).length,targets:arena.targets.map(t=>({id:t.id,health:t.health,active:t.active})),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,memory:{...renderer.info.memory},environment:arena.environment.stats,physics:vehicle.snapshot()};}
   };
 }
 start().catch(error=>{console.error(error);loading.hidden=false;message.textContent='تعذر تشغيل الساحة. تحقق من الاتصال ودعم WebGL، ثم أعد المحاولة.';document.getElementById('retry').hidden=false;});

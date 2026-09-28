@@ -1,0 +1,125 @@
+{
+  "status": "passed",
+  "engine": "Rapier 0.17.3",
+  "sourceRevision": "ee7e01dfe848f1bc7e857d51bcee2e687bee21eb",
+  "fixedStep": 0.016666666666666666,
+  "physicsUnitsPerRenderUnit": 2,
+  "checks": [
+    {
+      "name": "Four ray-cast wheels support the chassis",
+      "status": "passed",
+      "details": {
+        "engine": "Rapier 0.17.3 / Motri",
+        "nativeSpeed": 0,
+        "contacts": 4,
+        "suspension": [
+          {
+            "contact": true,
+            "length": 0.7903205156326294
+          },
+          {
+            "contact": true,
+            "length": 0.7903205156326294
+          },
+          {
+            "contact": true,
+            "length": 0.7903205156326294
+          },
+          {
+            "contact": true,
+            "length": 0.7903205156326294
+          }
+        ],
+        "sleeping": true,
+        "rotation": [
+          0,
+          -5.551115123125783e-17,
+          0,
+          0.9999999828857289
+        ]
+      }
+    },
+    {
+      "name": "Settled car sleeps without positional jitter",
+      "status": "passed"
+    },
+    {
+      "name": "Throttle wakes the car and produces forward motion",
+      "status": "passed"
+    },
+    {
+      "name": "Motri left input steers through the tires",
+      "status": "passed"
+    },
+    {
+      "name": "Brake overrides throttle and stops physical motion",
+      "status": "passed",
+      "details": {
+        "speed": -0.0048849778646895825
+      }
+    },
+    {
+      "name": "Reverse engages from rest",
+      "status": "passed"
+    },
+    {
+      "name": "Full chassis collision stops at a thin wall",
+      "status": "passed",
+      "details": {
+        "position": [
+          -0.014294658787548542,
+          0.5809122323989868,
+          2.995502233505249
+        ]
+      }
+    },
+    {
+      "name": "Ramp physically pitches the chassis",
+      "status": "passed",
+      "details": {
+        "rotation": [
+          -0.08141153220157515,
+          -5.551115123125783e-17,
+          6.938893903907228e-18,
+          0.996680581390708
+        ],
+        "contacts": 4
+      }
+    },
+    {
+      "name": "All four wheel rays contact the actual inclined mesh",
+      "status": "passed",
+      "details": {
+        "errors": [
+          7.450580596923828e-8,
+          8.344650259672903e-8,
+          3.8743019015186064e-8,
+          4.7683715642676816e-8
+        ]
+      }
+    },
+    {
+      "name": "Vehicle climbs the ramp on its suspension",
+      "status": "passed",
+      "details": {
+        "position": [
+          3.0231117875700875e-7,
+          4.280083656311035,
+          4.5277419090271
+        ]
+      }
+    },
+    {
+      "name": "Touch throttle follows Motri cubic response",
+      "status": "passed"
+    },
+    {
+      "name": "Dragging behind the car selects reverse",
+      "status": "passed"
+    },
+    {
+      "name": "Touch target turns the wheels with bounded steering",
+      "status": "passed"
+    }
+  ]
+}

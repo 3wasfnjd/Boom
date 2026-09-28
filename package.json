@@ -1,20 +1,22 @@
 {
   "name": "boom-test-arena",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "verify": "node verification/verify.mjs && node verification/shots.mjs",
+    "verify": "node scripts/verify-physics.mjs && node verification/shots.mjs",
     "verify:browser": "node verification/browser.cjs",
-    "verify:world": "node verification/world-browser.cjs"
+    "verify:world": "node verification/world-browser.cjs",
+    "verify:legacy": "node verification/verify.mjs"
   },
   "dependencies": {
-    "three": "0.185.1",
-    "crashcat": "0.0.3"
+    "@dimforge/rapier3d": "0.17.3",
+    "three": "0.185.1"
   },
   "devDependencies": {
     "esbuild": "0.27.4",
-    "playwright": "1.62.1"
+    "playwright": "1.62.1",
+    "crashcat": "0.0.3"
   }
 }

@@ -1,10 +1,8 @@
 import * as THREE from 'three';
-import {rigidBody,triangleMesh,MotionType} from 'crashcat';
 import {buildDunes,DUNES,smooth} from './motri/DunesField.js';
 import {LOOP_ROUTE,ROADS,TARGET_POSITIONS,groundTexture} from './WorldLayout.js';
 
 const SIZE=100,DIVISIONS=96,SIDE=DIVISIONS+1,CELL=SIZE/DIVISIONS;
-const poseNormal=new THREE.Vector3(),poseRotation=new THREE.Quaternion(),poseInverse=new THREE.Quaternion(),up=new THREE.Vector3(0,1,0);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function sampleGrid(data,width,depth,x,z) {
   x=clamp(x,0,width-1);z=clamp(z,0,depth-1);
@@ -73,7 +71,7 @@ export class TerrainSurface {
     const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.setIndex(indices);geometry.computeVertexNormals();
     const base=this.paintSourceGround(assets.terrain.image,assets.slabs.image);
     this.mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({map:groundTexture(THREE,base),roughness:1}));this.mesh.name='MotriTerrain';this.mesh.receiveShadow=true;arena.scene.add(this.mesh);
-    this.body=rigidBody.create(arena.world,{shape:triangleMesh.create({positions,indices}),motionType:MotionType.STATIC,objectLayer:arena.world._OL_STATIC,friction:5,restitution:.05,enhancedInternalEdgeRemoval:true});
+    this.body=arena.world.createTerrain(positions,indices);
     this.stats={vertices:SIDE*SIDE,triangles:indices.length/3,minHeight:Math.min(...this.heights),maxHeight:Math.max(...this.heights)};
   }
   heightAt(x,z) {
@@ -81,17 +79,6 @@ export class TerrainSurface {
     const ix=Math.min(DIVISIONS-1,Math.floor(gx)),iz=Math.min(DIVISIONS-1,Math.floor(gz)),u=gx-ix,v=gz-iz,k=iz*SIDE+ix,h=this.heights;
     // Match the mesh's a-c-b / b-c-d diagonals exactly, not bilinear heights.
     return u+v<=1?h[k]*(1-u-v)+h[k+1]*u+h[k+SIDE]*v:h[k+1]*(1-v)+h[k+SIDE]*(1-u)+h[k+SIDE+1]*(u+v-1);
-  }
-  alignVehicle(vehicle,dt) {
-    const p=vehicle.container.position,h=this.heightAt(p.x,p.z);
-    // Preserve the original steering/body suspension; only orient its visual
-    // parent on the slope. Elevated bridges and airborne cars stay level.
-    if(Math.abs(p.y-h)>.24)poseRotation.identity();
-    else {
-      poseNormal.set(this.heightAt(p.x-.55,p.z)-this.heightAt(p.x+.55,p.z),1.1,this.heightAt(p.x,p.z-.55)-this.heightAt(p.x,p.z+.55)).normalize();
-      poseNormal.applyQuaternion(poseInverse.copy(vehicle.container.quaternion).invert());poseRotation.setFromUnitVectors(up,poseNormal);
-    }
-    vehicle.groundPivot.quaternion.slerp(poseRotation,1-Math.exp(-12*dt));
   }
   raycast(ray) {
     const end=ray.origin.clone().addScaledVector(ray.direction,160),fraction=this.trace(ray.origin,end);

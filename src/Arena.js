@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import {rigidBody,box,MotionType} from 'crashcat';
 import {MotriWorld} from './MotriWorld.js';
 import {TARGET_POSITIONS} from './WorldLayout.js';
 export {ARENA_HALF,SPAWN,TARGET_POSITIONS} from './WorldLayout.js';
@@ -11,10 +10,10 @@ export class Arena {
     let template;crateScene.traverse(o=>{if(!template&&o.isMesh)template=o;});if(!template)throw Error('Motri crate mesh missing');
     TARGET_POSITIONS.forEach(([x,z],id)=>this.createTarget(template,x,z,id));
   }
-  makeBody(position,size,friction=.7,quaternion=[0,0,0,1]) {
-    return rigidBody.create(this.world,{shape:box.create({halfExtents:size.map(n=>n/2)}),motionType:MotionType.STATIC,objectLayer:this.world._OL_STATIC,position,quaternion,friction,restitution:.05});
+  makeBody(position,size,friction=.2,quaternion=[0,0,0,1]) {
+    return this.world.createBox(position,size,friction,quaternion);
   }
-  addBlocker(position,size,{quaternion=[0,0,0,1],name='wall',surface=false,friction=.7}={}) {
+  addBlocker(position,size,{quaternion=[0,0,0,1],name='wall',surface=false,friction=.2}={}) {
     const matrix=new THREE.Matrix4().compose(new THREE.Vector3(...position),new THREE.Quaternion(...quaternion),new THREE.Vector3(1,1,1));
     const localBounds=new THREE.Box3(new THREE.Vector3(...size).multiplyScalar(-.5),new THREE.Vector3(...size).multiplyScalar(.5));
     const item={kind:'wall',active:true,name,surface,localBounds,inverseMatrix:matrix.clone().invert().elements.slice(),bounds:localBounds.clone().applyMatrix4(matrix)};
@@ -38,11 +37,11 @@ export class Arena {
     if(!target.active)return false;
     target.health=Math.max(0,target.health-amount);target.flash=.13;
     target.bar.scale.x=target.health/100;
-    if(target.health===0){target.active=false;target.group.visible=false;target.respawnAt=this.time+6;rigidBody.remove(this.world,target.body);target.body=null;return true;}
+    if(target.health===0){target.active=false;target.group.visible=false;target.respawnAt=this.time+6;this.world.removeBody(target.body);target.body=null;return true;}
     return false;
   }
   restore(target) {
-    if(target.body)rigidBody.remove(this.world,target.body);
+    if(target.body)this.world.removeBody(target.body);
     target.health=100;target.active=true;target.group.visible=true;target.bar.scale.x=1;target.flash=0;target.respawnAt=0;
     target.body=this.makeBody(target.position.toArray(),[1.3,1.3,1.3]);
   }

@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import {Controls} from '../verification/Controls.js';
+import {MotriControls} from './MotriControls.js';
 
 export class CombatInput {
   constructor(canvas) {
-    this.drive=new Controls();this.mouse=new THREE.Vector2();this.mouseAiming=false;this.mouseFire=false;this.padFire=false;this.braking=false;
+    this.drive=new MotriControls();this.mouse=new THREE.Vector2();this.mouseAiming=false;this.mouseFire=false;this.padFire=false;this.braking=false;
     this.stick=new THREE.Vector2();this.padPointer=null;this.brakePointer=null;this.canvas=canvas;
     const pad=document.getElementById('aim-pad'),knob=document.getElementById('aim-knob'),brake=document.getElementById('brake');
     const resetPad=()=>{this.padFire=false;this.padPointer=null;this.stick.set(0,0);knob.style.transform='';pad.classList.remove('active');};
@@ -26,8 +26,8 @@ export class CombatInput {
     this.release=()=>{this.drive.keys={};this.drive.touchActive=false;this.drive.steerPointerId=null;this.drive.touchDirX=0;this.drive.touchDirY=0;this.mouseFire=false;this.mouseAiming=false;resetPad();resetBrake();document.querySelector('.steer-base')?.classList.remove('active');const k=document.querySelector('.steer-knob');if(k)k.style.transform='';};
     window.addEventListener('blur',this.release);document.addEventListener('visibilitychange',()=>{if(document.hidden)this.release();});
   }
-  read(worldAngle) {
-    const input=this.drive.update(worldAngle);
+  read(worldAngle,heading=0) {
+    const input=this.drive.update(worldAngle,heading);
     const gp=Array.from(navigator.getGamepads?.()??[]).find(Boolean);
     input.handbrake ||= this.braking||!!gp?.buttons[4]?.pressed;
     const aim=new THREE.Vector2();let mode='assist';

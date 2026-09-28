@@ -23,16 +23,23 @@ const check=(name,value,details)=>{assert.ok(value,name+' '+JSON.stringify(detai
   // Vehicle keyboard throttle is drive.z = +1, as in Controls.js.
   for(const id of ['h9','shas','datsun']){
    await page.evaluate(id=>__BOOM__.selectCar(id),id);
-   const result=await drive(23,16,0,210);
-   check(`${id}: drives up and down the dune without falling through`,result.maxHeight>.65&&result.maxHeight-result.minHeight>.6&&result.minClearance>-.13&&result.position[2]>28,result);
+   const result=await drive(24.2,16,0,450);
+   check(`${id}: drives up and down the dune without falling through`,result.maxHeight>1.1&&result.maxHeight-result.minHeight>.6&&result.minClearance>.15&&result.position[2]>28,result);
   }
-  const bridge=await drive(13,-20,Math.PI/2,150);
+  const wheels=await page.evaluate(()=>{
+   const b=__BOOM__;b.teleport(23.6,21.8);b.step(120,{drive:{x:0,z:0,handbrake:true},mode:'assist',fire:false});
+   const v=b.vehicle;v.container.updateMatrixWorld(true);
+   return {contacts:v.physical.wheels.inContactCount,rotation:v.container.quaternion.toArray(),gaps:v.wheels.map((wheel,i)=>{const center=wheel.position.clone();wheel.getWorldPosition(center);const p=v.physical.wheels.items[i].contactPoint;return Math.abs(center.distanceTo(center.clone().set(p.x/2,p.y/2,p.z/2))-.2);})};
+  });
+  check('Rendered wheels follow their physical suspension contacts on a dune',wheels.contacts===4&&Math.max(...wheels.gaps)<.04,wheels);
+  const view=await page.evaluate(()=>{const b=__BOOM__;b.renderer.render(b.scene,b.camera);return b.renderer.domElement.toDataURL('image/png');});fs.writeFileSync(path.join(root,'terrain-preview.png'),Buffer.from(view.split(',')[1],'base64'));
+  const bridge=await drive(13,-20,Math.PI/2,270);
   check('Imported bridge carries a car across the depressed channel',bridge.position[0]>25&&bridge.minHeight>-.12,bridge);
-  const entrance=await drive(-21,-13,0,115);
+  const entrance=await drive(-21,-13,0,205);
   check('Rest-house original front gates allow entry',entrance.position[2]>-5,entrance);
-  const exit=await drive(-10,4.47,Math.PI/2,95);
+  const exit=await drive(-10,4.47,Math.PI/2,160);
   check('New side exit has matching visible and physical opening',exit.position[0]>-4.5,exit);
-  const wall=await drive(-10,0,Math.PI/2,130);
+  const wall=await drive(-10,-6.8,Math.PI/2,130);
   check('Unopened rest-house wall stops the car',wall.position[0]<-6.8&&wall.position[0]>-8,wall);
   const gateShot=await page.evaluate(async()=>{
    const b=__BOOM__,shot=b.combat.shots.find(s=>s.kind==='rockets');b.teleport(-10,4.47,Math.PI/2);

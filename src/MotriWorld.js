@@ -94,7 +94,7 @@ export class MotriWorld {
     for(const part of source.parts)this.batches.add(part.geometry,part.material,matrix.clone().multiply(part.matrix),name!=='fence');
     if(collide)for(const shape of source.colliders){
       const transform=matrix.clone().multiply(shape.matrix),p=new THREE.Vector3(),q=new THREE.Quaternion(),s=new THREE.Vector3();transform.decompose(p,q,s);
-      this.arena.addBlocker(p.toArray(),s.toArray(),{quaternion:q.toArray(),name:name+':'+shape.name,surface:!!shape.surface,friction:shape.surface?5:.7});
+      this.arena.addBlocker(p.toArray(),s.toArray(),{quaternion:q.toArray(),name:name+':'+shape.name,surface:!!shape.surface,friction:.2});
     }
     this.propCount++;
   }
@@ -123,8 +123,8 @@ export class MotriWorld {
       shapes.push({name:'side_exit_wall',center,size,rotationY:0});
     }
     root.updateMatrixWorld(true);
-    for(const shape of shapes){const p=root.localToWorld(new THREE.Vector3(...shape.center));this.arena.addBlocker(p.toArray(),shape.size.map(n=>n*REST_HOUSE.scale),{name:'house:'+shape.name,quaternion:new THREE.Quaternion().setFromAxisAngle(up,shape.rotationY||0).toArray(),surface:shape.size[1]<.22,friction:shape.size[1]<.22?5:.7});}
-    for(const [center,size] of [[[5.2,-.15,24.4],[40,.3,48.8]],[[0,-.15,-3.2],[6.8,.3,6.4]]]){const p=root.localToWorld(new THREE.Vector3(...center));this.arena.makeBody(p.toArray(),size.map(n=>n*REST_HOUSE.scale),5);}
+    for(const shape of shapes){const p=root.localToWorld(new THREE.Vector3(...shape.center));this.arena.addBlocker(p.toArray(),shape.size.map(n=>n*REST_HOUSE.scale),{name:'house:'+shape.name,quaternion:new THREE.Quaternion().setFromAxisAngle(up,shape.rotationY||0).toArray(),surface:shape.size[1]<.22,friction:.2});}
+    for(const [center,size] of [[[5.2,-.15,24.4],[40,.3,48.8]],[[0,-.15,-3.2],[6.8,.3,6.4]]]){const p=root.localToWorld(new THREE.Vector3(...center));this.arena.makeBody(p.toArray(),size.map(n=>n*REST_HOUSE.scale),.2);}
     const paint=new THREE.MeshStandardMaterial({name:'RestHouse_GamePalette',vertexColors:true,roughness:1});
     paving.colorSpace=THREE.SRGBColorSpace;paving.flipY=false;paving.wrapS=paving.wrapT=THREE.MirroredRepeatWrapping;paving.repeat.set(.35,.35);paving.anisotropy=2;
     const pavingMaterial=new THREE.MeshStandardMaterial({name:'RestHouse_GamePaving',map:paving,roughness:1});

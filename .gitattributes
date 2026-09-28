@@ -7,3 +7,5 @@ app.min.js linguist-generated=true -whitespace
 vendor/draco/* linguist-vendored=true -whitespace
 
 *.bin binary
+
+src/motri/*.js linguist-vendored=true -whitespace
