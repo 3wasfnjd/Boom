@@ -29,10 +29,10 @@
 | الجهاز | القيادة | التصويب والإطلاق | الفرامل |
 |---|---|---|---|
 | الكمبيوتر | WASD أو الأسهم؛ S للفرملة ثم الرجوع، Shift للتعزيز | الماوس للتصويب وزره الأيسر للإطلاق، أو Space مع مساعدة التصويب | B |
-| الجوال | اسحب العصا اليسرى نحو وجهتك | اضغط دائرة «إطلاق» لمساعدة التصويب، أو اسحبها لتوجيه السلاح | زر «فرامل» |
+| الجوال | أسهم +: فوق بنزين، تحت فرامل ثم ريوس، يمين ويسار للتوجيه؛ الزوايا تجمع البنزين والتوجيه | اضغط دائرة «إطلاق» لمساعدة التصويب، أو اسحبها لتوجيه السلاح | زر «فرامل» |
 | يد التحكم | العصا اليسرى للتوجيه، RT للتسارع وLT للرجوع، الدائرة/B للتعزيز | العصا اليمنى للتصويب وRB للإطلاق | المربع/X أو LB |
 
-تحكم اللمس يستخدم استجابة موتري التدريجية: التسارع يتناسب مع مكعب مقدار السحب، والسحب خلف السيارة يختار الرجوع. العجلة الأمامية توجه السيارة فعليًا، دون تدوير الهيكل مباشرة بالعصا. بقيت دائرة التحكم الثابتة للسماح بالقيادة والرماية بإصبعين.
+أسهم اللمس مرتبطة باتجاه السيارة، وتدعم القيادة والرماية بإصبعين. عدّاد «القتل» يعرض قتل اللاعبين المعتمد من الخادم ولا يحسب صناديق التدريب. حلقة سماوية وعلامة علوية متحركة تميّزان سيارتك محليًا وتختفيان أثناء التحطم.
 
 الأزرار العلوية أو المفاتيح 1 / 2 / 3 تبدّل السيارة. زر ↻ أو R يعيد التجربة. مساعدة التصويب تختار هدفًا قريبًا أمام السيارة دون حاجز بينهما.
 
@@ -130,7 +130,7 @@ Run `node scripts/verify-physics.mjs verification/driving-tuning.mjs` for the co
 
 ### Touch response and perceived speed
 
-The source cubic joystick curve gave only 12.5% throttle at half stick travel. Boom now gives 64.3% at half travel and full throttle at 80%; a 6% neutral zone prevents creep. Touch position is sampled immediately on press. The existing tested engine and drift tune is unchanged. In a six-second flat-ground comparison, half-travel speed rises from 3.16 to 8.47 render units/s; full travel remains 9.24. These are world units, not calibrated km/h. Run `node scripts/verify-physics.mjs verification/touch-response.mjs` for the measurements.
+The previous analog touch curve is retained only as a physics reference. The current mobile D-pad uses full forward/reverse throttle and tire steering; diagonals support steering and throttle with one finger, alongside a second finger for firing. Pointer cancellation, leaving the pad, blur and hidden-page events release the controls.
 
 The fixed-angle follow camera is closer and lower: portrait offset (2.2, 7.5, -10.7), landscape (4.4, 6.8, -10.8), with a small look-ahead in the direction of velocity. This makes ground movement more visible; it does not change vehicle speed.
 

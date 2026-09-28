@@ -96,7 +96,7 @@
       "name": "h9: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 73,
+        "geometry": 76,
         "shots": 72,
         "effects": 72
       }
@@ -153,7 +153,7 @@
       "name": "shas: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 105,
+        "geometry": 108,
         "shots": 72,
         "effects": 72
       }
@@ -210,7 +210,7 @@
       "name": "datsun: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 137,
+        "geometry": 140,
         "shots": 72,
         "effects": 72
       }
@@ -231,8 +231,8 @@
       "name": "Repeated vehicle switching reuses loaded GPU geometry",
       "status": "passed",
       "details": {
-        "before": 137,
-        "after": 137
+        "before": 140,
+        "after": 140
       }
     },
     {
@@ -240,21 +240,19 @@
       "status": "passed"
     },
     {
-      "name": "Half-travel touch starts driving on pointerdown without another move",
-      "status": "passed",
-      "details": {
-        "throttle": 0.6428176802808613
-      }
+      "name": "Up arrow gives full throttle regardless of camera or vehicle heading",
+      "status": "passed"
     },
     {
-      "name": "Eighty percent stick travel reaches full throttle",
-      "status": "passed",
-      "details": {
-        "throttle": 1
-      }
+      "name": "One finger diagonally holds acceleration and left steering",
+      "status": "passed"
     },
     {
-      "name": "Real touch joystick drives the car",
+      "name": "Diagonal right gives acceleration and right steering",
+      "status": "passed"
+    },
+    {
+      "name": "Real up-arrow touch drives the car",
       "status": "passed"
     },
     {
@@ -265,7 +263,7 @@
       "name": "Dragging the fire pad rotates the turret",
       "status": "passed",
       "details": {
-        "yaw": -1.6199905568155188,
+        "yaw": -1.7735696287312235,
         "stick": [
           0.8571428571428571,
           0
@@ -278,18 +276,18 @@
       "name": "Touch handbrake works while driving and shooting",
       "status": "passed",
       "details": {
-        "before": -0.7916590542128801,
-        "after": 0.019370022825744702,
+        "before": 8.734845011221335,
+        "after": 1.0516480395107999,
         "position": [
-          -4.945320129394531,
-          0.5949517488479614,
-          15.1210298538208
+          -0.011630363762378693,
+          0.7180059552192688,
+          20.90066146850586
         ],
         "controls": {
           "braking": true,
           "player": {
             "accelerating": 0,
-            "steering": -1,
+            "steering": 0,
             "braking": 1,
             "boosting": 0,
             "suspensions": [
@@ -308,6 +306,18 @@
     },
     {
       "name": "Losing focus releases all held controls",
+      "status": "passed"
+    },
+    {
+      "name": "Down-arrow touch reverses from rest",
+      "status": "passed"
+    },
+    {
+      "name": "Local highlight exists once and follows every car",
+      "status": "passed"
+    },
+    {
+      "name": "Highlight hides on death and returns on respawn",
       "status": "passed"
     },
     {

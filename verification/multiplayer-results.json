@@ -8,8 +8,8 @@
         "peers": 1,
         "models": 1,
         "self": {
-          "id": "95945df5-b26d-4c9c-b16b-c8fe37ccd7d1",
-          "name": "لاعب 727",
+          "id": "6d4c78ae-70be-450e-93bb-46b79576078e",
+          "name": "لاعب 992",
           "body": "h9",
           "p": [
             -2,
@@ -35,19 +35,19 @@
           ],
           "steer": 0,
           "spin": 0,
-          "yaw": 1.6715646619575486,
-          "pitch": 0.028473514357160164,
+          "yaw": 1.6715643976396264,
+          "pitch": 0.028473500204535693,
           "hp": 100,
           "alive": true,
-          "shieldUntil": 1790602602810,
+          "shieldUntil": 1790606594328,
           "respawnAt": 0,
           "crateAt": 0,
           "kills": 0,
           "deaths": 0,
           "connected": true,
-          "seq": 48
+          "seq": 50
         },
-        "tag": "لاعب 173"
+        "tag": "لاعب 731"
       }
     },
     {
@@ -78,6 +78,24 @@
     },
     {
       "name": "Server respawns the player at full health on both clients",
+      "status": "passed"
+    },
+    {
+      "name": "Server-confirmed kill appears only on the attacker HUD",
+      "status": "passed",
+      "details": [
+        {
+          "kills": 1,
+          "text": "القتل ١"
+        },
+        {
+          "kills": 0,
+          "text": "القتل ٠"
+        }
+      ]
+    },
+    {
+      "name": "Identity effect belongs only to the local car",
       "status": "passed"
     },
     {

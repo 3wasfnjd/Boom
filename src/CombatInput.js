@@ -23,7 +23,7 @@ export class CombatInput {
     canvas.addEventListener('contextmenu',e=>e.preventDefault());
     window.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();});
     pad.addEventListener('keydown',e=>{if(e.code==='Enter')this.padFire=true;});pad.addEventListener('keyup',()=>this.padFire=false);
-    this.release=()=>{this.drive.keys={};this.drive.touchActive=false;this.drive.steerPointerId=null;this.drive.touchDirX=0;this.drive.touchDirY=0;this.mouseFire=false;this.mouseAiming=false;resetPad();resetBrake();document.querySelector('.steer-base')?.classList.remove('active');const k=document.querySelector('.steer-knob');if(k)k.style.transform='';};
+    this.release=()=>{this.drive.release();this.mouseFire=false;this.mouseAiming=false;resetPad();resetBrake();};
     window.addEventListener('blur',this.release);document.addEventListener('visibilitychange',()=>{if(document.hidden)this.release();});
   }
   read(worldAngle,heading=0) {

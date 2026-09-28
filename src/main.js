@@ -8,6 +8,7 @@ import {CombatInput} from './CombatInput.js';
 import {CombatSystem,WEAPONS} from './CombatSystem.js';
 import {BattleClient} from './BattleClient.js';
 import {FixedStepClock} from './FixedStepClock.js';
+import {PlayerHighlight} from './PlayerHighlight.js';
 import {MotriAtmosphere} from './MotriAtmosphere.js';
 
 const loading=document.getElementById('loading'),message=document.getElementById('loading-message');
@@ -39,10 +40,11 @@ async function start() {
   const [firstCar,crate]=await Promise.all([loadCar('h9'),loader.loadAsync(new URL('models/world/motri-crate.glb',document.baseURI).href),worldLoading]);decoder.dispose();
   const arena=new Arena(scene,world,crate.scene,worldAssets),vehicle=new MotriVehicle(world,scene),input=new CombatInput(renderer.domElement);
   const atmosphere=new MotriAtmosphere({scene,renderer,environment:arena.environment,sun,ambient});
+  const playerHighlight=new PlayerHighlight(scene,arena.environment.terrain);
   let battle=null;
   let id='h9',hits=0,hitFlash=0,selection=0,paused=false;
   const aimMark=document.getElementById('aim-mark'),hitMark=document.getElementById('hit-mark'),hitCount=document.getElementById('hit-count'),hint=document.getElementById('hint');
-  if('ontouchstart' in window)hint.textContent='حرّك العصا اليسرى للقيادة · اضغط إطلاق للرماية أو اسحبه للتصويب';
+  if('ontouchstart' in window)hint.textContent='↑ بنزين · ↓ ريوس · اسحب للزاوية للّف مع البنزين';
   const combat=new CombatSystem(scene,arena,()=>{hits++;hitFlash=.15;hitCount.textContent=`إصابات ${hits.toLocaleString('ar')}`;});
   function installCar(gltf,nextId) {
     vehicle.setModel(gltf.scene);id=nextId;if(battle)battle.car=id;
@@ -77,6 +79,7 @@ async function start() {
     battle?.update(dt);if(vehicle.container.position.y< -5)reset();moveCamera(dt);arena.update(dt,camera);combat.update(dt,controls,camera);hitFlash=Math.max(0,hitFlash-dt);
   }
   function draw() {
+    playerHighlight.update(vehicle.container,performance.now()/1000);playerHighlight.faceCamera(camera);
     atmosphere.update(camera,vehicle.container.position,(Date.now()+(battle?.online?battle.serverOffset:0))/1000);
     projected.copy(combat.aimPoint).project(camera);
     const visible=projected.z>-1&&projected.z<1&&Math.abs(projected.x)<.98&&Math.abs(projected.y)<.96;
@@ -94,7 +97,7 @@ async function start() {
   });
   // The diagnostics API is opt-in and kept out of the player's interface.
   if(new URLSearchParams(location.search).has('debug'))window.__BOOM__={
-    get vehicle(){return vehicle;},get body(){return vehicle.body;},scene,arena,combat,input,world,camera,renderer,clock,battle,atmosphere,selectCar,reset,
+    get vehicle(){return vehicle;},get body(){return vehicle.body;},scene,arena,combat,input,world,camera,renderer,clock,battle,atmosphere,playerHighlight,selectCar,reset,
     teleport(x,z,angle=0){reset();vehicle.reset(x,arena.environment.terrain.heightAt(x,z)+SPAWN[1],z,angle);if(battle.local){const p=battle.local.players.get(battle.id);p.p=vehicle.container.position.toArray();p.q=vehicle.container.quaternion.toArray();p.shieldUntil=0;}follow.copy(vehicle.container.position);moveCamera(1);},
     pause(value=true){paused=value;},
     step(frames=1,controls){for(let i=0;i<frames;i++)tick(controls||input.read(worldAngle,vehicle.heading));draw();},

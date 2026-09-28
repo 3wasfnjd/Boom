@@ -5,7 +5,7 @@
 <meta name="theme-color" content="#202926"><meta name="description" content="BOOM — ساحة تجربة سيارات موتري بأسلحة وقيادة هجولة">
 <title>BOOM • ساحة الاستراحة</title>
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
-<link rel="stylesheet" href="./src/game.css?v=multiplayer-1">
+<link rel="stylesheet" href="./src/game.css?v=dpad-kills-1">
 </head>
 <body>
 <canvas id="game" aria-label="ساحة تجربة السيارات"></canvas>
@@ -18,7 +18,7 @@
  <button id="reset" class="icon-button" aria-label="إعادة السيارة والأهداف">↻</button>
 </header>
 <aside class="game-hud readout"><span id="weapon-name">رشاش مزدوج</span><span id="hit-count">إصابات ٠</span></aside>
-<aside class="game-hud battle-hud"><span id="network-status">تجهيز الساحة…</span><div class="health-track"><i id="player-health-fill"></i><b id="player-health-text">100 / 100</b></div></aside>
+<aside class="game-hud battle-hud"><span id="network-status">تجهيز الساحة…</span><div class="health-track"><i id="player-health-fill"></i><b id="player-health-text">100 / 100</b></div><span id="player-kills">القتل ٠</span></aside>
 <div id="battle-notice" role="status"></div><div id="damage-flash" aria-hidden="true"></div>
 <dialog id="room-dialog"><b>ساحة اللاعبين</b><label>اسمك<input id="player-name" maxlength="14" autocomplete="nickname"></label><label>الغرفة<input id="room-name" maxlength="24" dir="ltr" placeholder="public"></label><small>نفس اسم الغرفة يجمعكم · حتى ٦ لاعبين</small><button id="join-room">دخول الغرفة</button><button id="invite-room">نسخ رابط الدعوة</button><input id="invite-link" hidden readonly dir="ltr"><button id="close-room">إغلاق</button></dialog>
 <div id="aim-mark" aria-hidden="true"><i></i></div>
@@ -31,5 +31,5 @@
 </div>
 <div id="loading"><b>BOOM</b><span id="loading-message">تجهيز ساحة الاستراحة…</span><div class="load-track"><i></i></div><button id="retry" hidden>إعادة المحاولة</button></div>
 <script>window.addEventListener('error',function(){var e=document.getElementById('loading');if(e&&!e.hidden){document.getElementById('loading-message').textContent='تعذر تشغيل الساحة. أعد المحاولة.';document.getElementById('retry').hidden=false;}});document.getElementById('retry').onclick=function(){location.reload()};</script>
-<script type="module" src="./app.min.js?v=motri-weather-1"></script>
+<script type="module" src="./app.min.js?v=dpad-kills-1"></script>
 </body></html>
