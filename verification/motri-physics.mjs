@@ -16,7 +16,7 @@ const step=(world,vehicle,n,input={x:0,z:0})=>{for(let i=0;i<n;i++){vehicle.preS
  check('Settled car sleeps without positional jitter',v.body.isSleeping()&&rest.distanceTo(v.container.position)<.001);
  step(world,v,120,{x:0,z:1});check('Throttle wakes the car and produces forward motion',!v.body.isSleeping()&&v.container.position.z>3&&v.linearSpeed>1);
  step(world,v,60,{x:1,z:1});check('Motri left input steers through the tires',v.heading>.2&&v.container.position.x>.3);
- step(world,v,90,{x:0,z:1,handbrake:true});check('Brake overrides throttle and stops physical motion',Math.abs(v.linearSpeed)<.1,{speed:v.linearSpeed});
+ step(world,v,180,{x:0,z:1,handbrake:true});check('Brake overrides throttle and stops physical motion',Math.abs(v.linearSpeed)<.1,{speed:v.linearSpeed});
  v.reset(0,.8,0);step(world,v,90);step(world,v,120,{x:0,z:-1});check('Reverse engages from rest',v.container.position.z< -2&&v.linearSpeed< -1);
  v.reset(0,.8,0);world.createBox([0,1,4],[8,2,.4]);step(world,v,90);step(world,v,360,{x:0,z:1});
  check('Full chassis collision stops at a thin wall',v.container.position.z>1&&v.container.position.z<3.6,{position:v.container.position.toArray()});world.native.free();

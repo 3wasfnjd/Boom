@@ -3,15 +3,48 @@
   "revision": "ee7e01dfe848f1bc7e857d51bcee2e687bee21eb",
   "engine": "@dimforge/rapier3d 0.17.3",
   "files": [
-    {"source":"sources/Game/Physics/PhysicsVehicle.js","destination":"src/motri/PhysicsVehicle.js","adaptation":"Inject game context in constructor; use Three WebGL entry and local Events/maths imports. Vehicle constants and pre/post-physics algorithms retained."},
-    {"source":"sources/Game/Physics/VehicleRest.js","destination":"src/motri/VehicleRest.js","adaptation":"Three WebGL import only."},
-    {"source":"sources/Game/Events.js","destination":"src/motri/Events.js","adaptation":"None."},
-    {"source":"sources/Game/utilities/maths.js","destination":"src/motri/maths.js","adaptation":"None."},
-    {"source":"sources/Game/Physics/Physics.js","destination":"src/PhysicsWorld.js","adaptation":"Port chassis descriptors, mass/inertia, damping, friction and collision groups; enable chassis CCD; scale Boom world by 2 into original Motri units."},
-    {"source":"sources/Game/Player.js + sources/Game/Inputs/Nipple.js","destination":"src/MotriControls.js","adaptation":"Port keyboard/gamepad steering and cubic touch throttle, 270-degree forward cone and reverse steering; retain Boom touch pad and independent firing pointer. Space and number keys remain combat controls."},
-    {"source":"sources/Game/World/VisualVehicle.js","destination":"src/MotriVehicle.js","adaptation":"Map chassis orientation and actual suspension lengths to existing normalized GLBs. Wheel rolling uses distance/radius and fixed time step. Preserve auto-righting delay."}
+    {
+      "source": "sources/Game/Physics/PhysicsVehicle.js",
+      "destination": "src/motri/PhysicsVehicle.js",
+      "adaptation": "Inject game context in constructor; use Three WebGL entry and local Events/maths imports. Vehicle constants and pre/post-physics algorithms retained."
+    },
+    {
+      "source": "sources/Game/Physics/VehicleRest.js",
+      "destination": "src/motri/VehicleRest.js",
+      "adaptation": "Three WebGL import only."
+    },
+    {
+      "source": "sources/Game/Events.js",
+      "destination": "src/motri/Events.js",
+      "adaptation": "None."
+    },
+    {
+      "source": "sources/Game/utilities/maths.js",
+      "destination": "src/motri/maths.js",
+      "adaptation": "None."
+    },
+    {
+      "source": "sources/Game/Physics/Physics.js",
+      "destination": "src/PhysicsWorld.js",
+      "adaptation": "Port chassis descriptors, mass/inertia, damping, friction and collision groups; enable chassis CCD; scale Boom world by 2 into original Motri units."
+    },
+    {
+      "source": "sources/Game/Player.js + sources/Game/Inputs/Nipple.js",
+      "destination": "src/MotriControls.js",
+      "adaptation": "Port keyboard/gamepad steering and cubic touch throttle, 270-degree forward cone and reverse steering; retain Boom touch pad and independent firing pointer. Space and number keys remain combat controls."
+    },
+    {
+      "source": "sources/Game/World/VisualVehicle.js",
+      "destination": "src/MotriVehicle.js",
+      "adaptation": "Map chassis orientation and actual suspension lengths to existing normalized GLBs. Wheel rolling uses distance/radius and fixed time step. Preserve auto-righting delay."
+    }
   ],
-  "coordinates": {"sourceForward":"+X","renderForward":"+Z","nativeUnitsPerRenderUnit":2},
+  "coordinates": {
+    "sourceForward": "+X",
+    "renderForward": "+Z",
+    "nativeUnitsPerRenderUnit": 2
+  },
   "previousRelease": "e37bce3a02904603a917ed6bc32e174a732cd6b1",
-  "legacy": "Hajwala files remain only for the opt-in legacy model compatibility verifier. They are not imported by the live game."
+  "legacy": "Hajwala files remain only for the opt-in legacy model compatibility verifier. They are not imported by the live game.",
+  "boomDrivingTuning": "MotriVehicle overrides engine force to 420 and soft speed threshold to 14; speed-sensitive steering and gradual rear grip reduction with slip-angle feedback for mild drift. Imported Motri source remains unchanged."
 }

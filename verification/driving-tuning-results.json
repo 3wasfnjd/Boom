@@ -1,0 +1,35 @@
+{
+  "status": "passed",
+  "baseline": {
+    "speedAfter6Seconds": 5.136585470957427,
+    "distanceAfter6Seconds": 24.439191818237305,
+    "maxTurnSlipDegrees": 4.147745980367864,
+    "minUp": 0.9998948327772498,
+    "recoveredGrip": 0,
+    "stoppedSpeed": 0
+  },
+  "tuned": {
+    "speedAfter6Seconds": 9.244803661824118,
+    "distanceAfter6Seconds": 43.43427658081055,
+    "maxTurnSlipDegrees": 13.632506862034196,
+    "minUp": 0.9997904851875344,
+    "recoveredGrip": 1.5806314613318606e-12,
+    "stoppedSpeed": 0.03771321435738874
+  },
+  "fullLeft": {
+    "speedAfter6Seconds": 9.244803661824118,
+    "distanceAfter6Seconds": 43.43427658081055,
+    "maxTurnSlipDegrees": 19.01184854061113,
+    "minUp": 0.9997908986489956,
+    "recoveredGrip": 2.044305906719953e-11,
+    "stoppedSpeed": 0.04027941678621871
+  },
+  "fullRight": {
+    "speedAfter6Seconds": 9.244803661824118,
+    "distanceAfter6Seconds": 43.43427658081055,
+    "maxTurnSlipDegrees": 19.011793633895376,
+    "minUp": 0.9997908986611771,
+    "recoveredGrip": 2.0443408308809576e-11,
+    "stoppedSpeed": 0.040401258510105176
+  }
+}

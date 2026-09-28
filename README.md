@@ -117,3 +117,9 @@ npm run verify:world
 - تفاصيل نقل المتحكم والوحدات والتحكم: [motri-port.json](verification/motri-port.json). سبق هذا التحديث إصدار الكرة المخفية `e37bce3`، وهو محفوظ في تاريخ Git.
 - Three.js 0.185.1 وRapier 0.17.3؛ ترخيص Rapier Apache-2.0 في `licenses/Rapier-Apache-2.0.txt`. Crashcat وMathcat اعتمادا تطوير لاختبار المقارنة القديم فقط. الإصدارات مثبتة في `package-lock.json`.
 - لم تُنقل مكونات اللعب الجماعي ولم يُعدّل مستودعا موتري أو هجولة.
+
+### Boom speed and mild drift tuning
+
+Boom overrides the imported Motri defaults in `src/MotriVehicle.js`: engine force 420, soft speed threshold 14 native units. Steering reduces gradually at speed. Powered forward turns ease rear tire grip; measured slip progressively restores grip, and releasing steering restores normal traction. No forced chassis rotation is applied.
+
+Run `node scripts/verify-physics.mjs verification/driving-tuning.mjs` for the comparative driving test. On a flat surface after six seconds of full throttle, rendered speed increased from 5.14 to 9.24 units/s. Steering tests cover partial and full left/right turns, recovery and braking; these are simulated physics results, not real-phone performance measurements.
