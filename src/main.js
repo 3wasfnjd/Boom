@@ -22,9 +22,9 @@ async function start() {
   const sun=new THREE.DirectionalLight('#fff1cc',3.4);sun.position.set(-10,17,-6);sun.castShadow=true;
   sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=sun.shadow.camera.bottom=-16;sun.shadow.camera.right=sun.shadow.camera.top=16;
   sun.shadow.camera.near=.1;sun.shadow.camera.far=45;sun.shadow.normalBias=.035;sun.shadow.bias=-.0002;scene.add(sun,sun.target);
-  const cameraOffset=new THREE.Vector3(4.4,6.8,-10.8),follow=new THREE.Vector3(SPAWN[0],.3,SPAWN[2]),lookTarget=new THREE.Vector3(),projected=new THREE.Vector3();
-  let worldAngle=Math.atan2(cameraOffset.x,cameraOffset.z);
-  const resize=()=>{renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;cameraOffset.set(camera.aspect<.85?2.2:4.4,camera.aspect<.85?7.5:6.8,camera.aspect<.85?-10.7:-10.8);worldAngle=Math.atan2(cameraOffset.x,cameraOffset.z);camera.updateProjectionMatrix();};
+  const cameraOffset=new THREE.Vector3(0,6.8,-10.8),follow=new THREE.Vector3(SPAWN[0],.3,SPAWN[2]),lookTarget=new THREE.Vector3(),projected=new THREE.Vector3();
+  let worldAngle=Math.PI,cameraHeading=0;
+  const resize=()=>{renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();};
   window.addEventListener('resize',resize);resize();
   await loadPhysics();const world=new PhysicsWorld();
   const decoder=new DRACOLoader().setDecoderPath(new URL('vendor/draco/',document.baseURI).href).setDecoderConfig({type:'wasm'}).setWorkerLimit(1);
@@ -44,7 +44,7 @@ async function start() {
   let battle=null;
   let id='h9',hits=0,hitFlash=0,selection=0,paused=false;
   const aimMark=document.getElementById('aim-mark'),hitMark=document.getElementById('hit-mark'),hitCount=document.getElementById('hit-count'),hint=document.getElementById('hint');
-  if('ontouchstart' in window)hint.textContent='↑ تثبيت البنزين · ↓ تثبيت الريوس · اضغط ثانية أو فرامل للإيقاف';
+  if('ontouchstart' in window)hint.textContent='اسحب يسار الشاشة للقيادة · فوق بنزين وتحت ريوس · يمين للإطلاق';
   const combat=new CombatSystem(scene,arena,()=>{hits++;hitFlash=.15;hitCount.textContent=`إصابات ${hits.toLocaleString('ar')}`;});
   function installCar(gltf,nextId) {
     vehicle.setModel(gltf.scene);id=nextId;if(battle)battle.car=id;
@@ -68,9 +68,16 @@ async function start() {
   document.querySelectorAll('[data-car]').forEach(button=>button.addEventListener('click',()=>selectCar(button.dataset.car)));
   window.addEventListener('keydown',event=>{if(event.repeat)return;if(event.code==='KeyR')reset();const car={Digit1:'h9',Digit2:'shas',Digit3:'datsun'}[event.code];if(car)selectCar(car);});
   function moveCamera(dt) {
-    const velocity=vehicle.body.linvel();
-    lookTarget.copy(vehicle.container.position);lookTarget.y+=.3;lookTarget.x+=THREE.MathUtils.clamp(velocity.x*.08,-2,2);lookTarget.z+=THREE.MathUtils.clamp(velocity.z*.08,-2,2);
-    follow.lerp(lookTarget,1-Math.exp(-7*dt));camera.position.copy(follow).add(cameraOffset);camera.lookAt(follow);camera.updateMatrixWorld();
+    const velocity=vehicle.body.linvel(),heading=vehicle.heading;
+    const delta=Math.atan2(Math.sin(heading-cameraHeading),Math.cos(heading-cameraHeading));
+    cameraHeading=dt>=.5?heading:cameraHeading+delta*(1-Math.exp(-5*dt));
+    const distance=camera.aspect<.85?10.7:10.8,height=camera.aspect<.85?7.5:6.8;
+    cameraOffset.set(-Math.sin(cameraHeading)*distance,height,-Math.cos(cameraHeading)*distance);
+    lookTarget.copy(vehicle.container.position);lookTarget.y+=.3;
+    lookTarget.x+=THREE.MathUtils.clamp(velocity.x*.06,-1.2,1.2);lookTarget.z+=THREE.MathUtils.clamp(velocity.z*.06,-1.2,1.2);
+    follow.lerp(lookTarget,1-Math.exp(-7*dt));camera.position.copy(follow).add(cameraOffset);
+    camera.position.y=Math.max(camera.position.y,arena.environment.terrain.heightAt(camera.position.x,camera.position.z)+2);
+    camera.lookAt(follow);camera.updateMatrixWorld();worldAngle=Math.atan2(camera.position.x-follow.x,camera.position.z-follow.z);
   }
   function tick(controls) {
     const dt=1/60;
@@ -97,7 +104,7 @@ async function start() {
   });
   // The diagnostics API is opt-in and kept out of the player's interface.
   if(new URLSearchParams(location.search).has('debug'))window.__BOOM__={
-    get vehicle(){return vehicle;},get body(){return vehicle.body;},scene,arena,combat,input,world,camera,renderer,clock,battle,atmosphere,playerHighlight,selectCar,reset,
+    get vehicle(){return vehicle;},get body(){return vehicle.body;},scene,arena,combat,input,world,camera,renderer,clock,battle,atmosphere,playerHighlight,selectCar,reset,get cameraHeading(){return cameraHeading;},get worldAngle(){return worldAngle;},
     teleport(x,z,angle=0){reset();vehicle.reset(x,arena.environment.terrain.heightAt(x,z)+SPAWN[1],z,angle);if(battle.local){const p=battle.local.players.get(battle.id);p.p=vehicle.container.position.toArray();p.q=vehicle.container.quaternion.toArray();p.shieldUntil=0;}follow.copy(vehicle.container.position);moveCamera(1);},
     pause(value=true){paused=value;},
     step(frames=1,controls){for(let i=0;i<frames;i++)tick(controls||input.read(worldAngle,vehicle.heading));draw();},

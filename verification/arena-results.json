@@ -96,7 +96,7 @@
       "name": "h9: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 75,
+        "geometry": 80,
         "shots": 72,
         "effects": 72
       }
@@ -153,7 +153,7 @@
       "name": "shas: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 107,
+        "geometry": 112,
         "shots": 72,
         "effects": 72
       }
@@ -210,7 +210,7 @@
       "name": "datsun: projectile and effect pools stay bounded",
       "status": "passed",
       "details": {
-        "geometry": 139,
+        "geometry": 144,
         "shots": 72,
         "effects": 72
       }
@@ -231,109 +231,95 @@
       "name": "Repeated vehicle switching reuses loaded GPU geometry",
       "status": "passed",
       "details": {
-        "before": 139,
-        "after": 139
+        "before": 144,
+        "after": 144
       }
     },
     {
-      "name": "Portrait touch controls have separate visible hit regions",
+      "name": "Portrait drive area stays clear of firing and braking buttons",
       "status": "passed"
     },
     {
-      "name": "Compact arrows keep 44px touch buttons and 72px opposite spacing",
+      "name": "Floating stick starts neutral at the actual touch point",
       "status": "passed"
     },
     {
-      "name": "Tap up latches throttle after lifting the finger and normal capture release",
+      "name": "Small thumb jitter stays inside the neutral zone",
       "status": "passed"
     },
     {
-      "name": "Tapping the latched direction a second time stops throttle",
-      "status": "passed"
-    },
-    {
-      "name": "Left steering preserves latched forward throttle",
-      "status": "passed"
-    },
-    {
-      "name": "Sliding to right preserves latched forward throttle",
-      "status": "passed"
-    },
-    {
-      "name": "Real up-arrow touch drives the car",
-      "status": "passed"
-    },
-    {
-      "name": "Two fingers drive and fire simultaneously",
-      "status": "passed"
-    },
-    {
-      "name": "Dragging the fire pad rotates the turret",
+      "name": "Half drag provides partial throttle",
       "status": "passed",
       "details": {
-        "yaw": -1.7735696287312235,
-        "stick": [
-          0.8571428571428571,
-          0
-        ],
-        "padFire": true,
-        "padPointer": 7
+        "x": 0,
+        "z": 0.4220924746789474,
+        "touchActive": true,
+        "handbrake": false,
+        "boost": false
       }
     },
     {
-      "name": "Touch handbrake works while driving and shooting",
+      "name": "Full throttle can combine with a gentle right turn",
       "status": "passed",
       "details": {
-        "before": 8.734845011221335,
-        "after": 1.0516480395107999,
-        "position": [
-          -0.011630363762378693,
-          0.7180059552192688,
-          20.90066146850586
-        ],
-        "controls": {
-          "braking": true,
-          "player": {
-            "accelerating": 0,
-            "steering": 0,
-            "braking": 1,
-            "boosting": 0,
-            "suspensions": [
-              "low",
-              "low",
-              "low",
-              "low"
-            ]
-          }
-        }
+        "x": -0.34695485986778546,
+        "z": 1,
+        "touchActive": true,
+        "handbrake": false,
+        "boost": false
       }
     },
     {
-      "name": "Releasing the brake does not restart latched acceleration",
+      "name": "Real floating-stick touch accelerates the car",
       "status": "passed"
     },
     {
-      "name": "Touch cancellation clears steering, firing and braking",
+      "name": "Releasing the stick clears throttle and existing idle brakes slow the car",
+      "status": "passed",
+      "details": {
+        "before": 6.096546143914162,
+        "after": 0
+      }
+    },
+    {
+      "name": "Pulling down brakes forward motion before reversing",
+      "status": "passed",
+      "details": {
+        "forwardSpeed": 4.173684152405695,
+        "brakeSpeed": 4.134039183491462,
+        "reverse": -8.02884191544453
+      }
+    },
+    {
+      "name": "Two fingers steer, accelerate and aim/fire at the same time",
       "status": "passed"
     },
     {
-      "name": "Losing focus releases all held controls",
+      "name": "Touch handbrake overrides the driving stick",
       "status": "passed"
     },
     {
-      "name": "Down-arrow touch reverses from rest",
+      "name": "Touch cancellation releases driving, shooting and braking",
       "status": "passed"
     },
     {
-      "name": "Reverse stays latched while steering",
+      "name": "Losing focus releases both fingers",
       "status": "passed"
     },
     {
-      "name": "Opposite arrow switches the latched drive direction",
+      "name": "Opening the room dialog clears driving input",
       "status": "passed"
     },
     {
-      "name": "Room dialog clears latched motion",
+      "name": "Chase camera stays behind at all four headings and aiming follows screen right",
+      "status": "passed"
+    },
+    {
+      "name": "Camera crosses the angle boundary smoothly without a full spin",
+      "status": "passed"
+    },
+    {
+      "name": "Reverse driving does not flip the camera in front of the car",
       "status": "passed"
     },
     {

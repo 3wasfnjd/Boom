@@ -29,10 +29,10 @@
 | الجهاز | القيادة | التصويب والإطلاق | الفرامل |
 |---|---|---|---|
 | الكمبيوتر | WASD أو الأسهم؛ S للفرملة ثم الرجوع، Shift للتعزيز | الماوس للتصويب وزره الأيسر للإطلاق، أو Space مع مساعدة التصويب | B |
-| الجوال | أسهم +: ضغطة فوق تثبّت البنزين، وضغطة تحت تثبّت الريوس، ويمين ويسار للتوجيه؛ ضغطة ثانية على الاتجاه أو الفرامل تلغي التثبيت | اضغط دائرة «إطلاق» لمساعدة التصويب، أو اسحبها لتوجيه السلاح | زر «فرامل» |
+| الجوال | عصا عائمة في الجزء السفلي الأيسر: اسحب أعلى للبنزين وأسفل للفرملة ثم الريوس، ومائلًا للجمع بين القيادة واللف. رفع الإصبع يحرر البنزين ويبطئ السيارة | اضغط دائرة «إطلاق» لمساعدة التصويب، أو اسحبها لتوجيه السلاح | زر «فرامل» |
 | يد التحكم | العصا اليسرى للتوجيه، RT للتسارع وLT للرجوع، الدائرة/B للتعزيز | العصا اليمنى للتصويب وRB للإطلاق | المربع/X أو LB |
 
-أسهم اللمس مرتبطة باتجاه السيارة، وتدعم القيادة والرماية بإصبعين. عدّاد «القتل» يعرض قتل اللاعبين المعتمد من الخادم ولا يحسب صناديق التدريب. حلقة سماوية وعلامة علوية متحركة تميّزان سيارتك محليًا وتختفيان أثناء التحطم.
+عصا اللمس تدريجية ومرتبطة باتجاه السيارة، والكاميرا المرتفعة تدور خلف السيارة بسلاسة دون الانقلاب للأمام عند الريوس. القيادة والرماية تعملان بإصبعين. عدّاد «القتل» يعرض قتل اللاعبين المعتمد من الخادم ولا يحسب صناديق التدريب. حلقة سماوية وعلامة علوية متحركة تميّزان سيارتك محليًا وتختفيان أثناء التحطم.
 
 الأزرار العلوية أو المفاتيح 1 / 2 / 3 تبدّل السيارة. زر ↻ أو R يعيد التجربة. مساعدة التصويب تختار هدفًا قريبًا أمام السيارة دون حاجز بينهما.
 
@@ -130,7 +130,7 @@ Run `node scripts/verify-physics.mjs verification/driving-tuning.mjs` for the co
 
 ### Touch response and perceived speed
 
-The previous analog touch curve is retained only as a physics reference. The current mobile D-pad uses full forward/reverse throttle and tire steering; latched throttle supports one-finger steering alongside a second finger for firing. Forward/reverse now latch on a tap, leaving the thumb free to steer; tap the same direction again or brake to clear. The compact pad keeps 44px buttons while reducing opposite button-center spacing from 100px to 72px. Pointer cancellation, unexpected capture loss, blur, hidden-page events and opening the room dialog clear the latch.
+The old direction-cone helper remains only for physics reference checks. Mobile driving now uses a floating stick in the lower-left area with independent car-relative analog throttle and tire steering, an 8% per-axis dead zone, and full input at 48px drag. There is no throttle latch. Release/cancel/blur/resize clears input; existing idle braking slows the car and existing reverse braking stops forward motion before reversing. A high chase camera follows chassis heading with shortest-angle damping, stays behind during reverse and keeps the horizon level. Weapon stick aiming uses the current camera azimuth. Tests emulate touch in Chromium; real-phone comfort remains a user evaluation.
 
 The fixed-angle follow camera is closer and lower: portrait offset (2.2, 7.5, -10.7), landscape (4.4, 6.8, -10.8), with a small look-ahead in the direction of velocity. This makes ground movement more visible; it does not change vehicle speed.
 
