@@ -1,4 +1,5 @@
 export const PROTOCOL=1,MAX_PLAYERS=6,MAX_HEALTH=100,RESPAWN_MS=5000,SHIELD_MS=2000,CRATE_COOLDOWN_MS=5000;
+export const HOMING={cooldown:10000,range:90,ascent:.6,launchSpeed:20,speed:32,life:7000,radius:.14,splash:2.8,damage:70};
 export const WEAPONS={
  h9:{kind:'machinegun',label:'رشاش مزدوج',interval:.11,speed:70,damage:12,radius:.035,life:1,splash:0},
  shas:{kind:'cannon',label:'مدفع',interval:.85,speed:34,damage:70,radius:.10,life:2,splash:1.8},

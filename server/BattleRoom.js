@@ -1,4 +1,5 @@
 import {CollisionWorld} from './CollisionWorld.js';
+import {HOMING} from '../shared/BattleRules.js';
 import {randomId,PROTOCOL,MAX_PLAYERS,MAX_HEALTH,RESPAWN_MS,SHIELD_MS,CRATE_COOLDOWN_MS,WEAPONS,SPAWNS,cleanName,carId,validArray,dist,box,forward,blastKick} from '../shared/BattleRules.js';
 
 // Motri's room/pose protocol is retained; health, shots and crates belong to
@@ -6,12 +7,12 @@ import {randomId,PROTOCOL,MAX_PLAYERS,MAX_HEALTH,RESPAWN_MS,SHIELD_MS,CRATE_COOL
 export class BattleRoom {
  constructor({now=()=>Date.now(),broadcast=()=>{},world=new CollisionWorld(),saved=null}={}){
   this.now=now;this.broadcast=broadcast;this.world=world;this.players=new Map();this.shots=[];this.crates=[];this.sequence=0;this.lastTick=now();this.snapshotAt=0;this.dirty=false;
-  this.targets=world.data.targets.map(t=>({...t,p:[...t.p],hp:100,respawn:0}));
+  this.targets=world.data.targets.map(t=>({...t,p:[...t.p],hp:100,respawn:0}));this.missiles=[];
   if(saved){this.sequence=saved.sequence||0;for(const p of saved.players||[])this.players.set(p.id,{...p,connected:false,leftAt:now(),lastState:now(),lastMessage:now(),tokens:100});this.targets=saved.targets||this.targets;this.crates=saved.crates||[];}
  }
  event(type,data={}){this.broadcast({type,eid:++this.sequence,ts:this.now(),...data});}
- view(p){return {id:p.id,name:p.name,body:p.body,p:p.p,q:p.q,v:p.v,wy:p.wy,steer:p.steer,spin:p.spin,yaw:p.yaw,pitch:p.pitch,hp:p.hp,alive:p.hp>0,shieldUntil:p.shieldUntil,respawnAt:p.respawnAt,crateAt:p.crateAt,kills:p.kills,deaths:p.deaths,connected:p.connected,seq:p.seq};}
- snapshot(){return {type:'snapshot',protocol:PROTOCOL,ts:this.now(),players:[...this.players.values()].filter(p=>p.connected).map(p=>this.view(p)),crates:this.crates.map(c=>({...c})),targets:this.targets.map(t=>({id:t.id,hp:t.hp,respawn:t.respawn}))};}
+ view(p){return {id:p.id,name:p.name,body:p.body,p:p.p,q:p.q,v:p.v,wy:p.wy,steer:p.steer,spin:p.spin,yaw:p.yaw,pitch:p.pitch,hp:p.hp,alive:p.hp>0,shieldUntil:p.shieldUntil,respawnAt:p.respawnAt,crateAt:p.crateAt,homingAt:p.homingAt||0,kills:p.kills,deaths:p.deaths,connected:p.connected,seq:p.seq};}
+ snapshot(){return {type:'snapshot',protocol:PROTOCOL,ts:this.now(),players:[...this.players.values()].filter(p=>p.connected).map(p=>this.view(p)),missiles:this.missiles.map(m=>({...m})),crates:this.crates.map(c=>({...c})),targets:this.targets.map(t=>({id:t.id,hp:t.hp,respawn:t.respawn}))};}
  save(){return {sequence:this.sequence,players:[...this.players.values()].map(p=>({...p})),targets:this.targets,crates:this.crates};}
  join({name,body,token}={}){
   const now=this.now();this.cleanup(now);let p=[...this.players.values()].find(p=>p.token===token&&typeof token==='string'&&token.length>=20);
@@ -38,6 +39,7 @@ export class BattleRoom {
   }
   if(m.type==='fire')return this.fire(p,m,now);
   if(m.type==='crate')return this.dropCrate(p,now);
+  if(m.type==='homing')return this.launchHoming(p,m.targetId,now);
   if(m.type==='recover'&&p.hp>0&&now>=p.recoverAt){p.recoverAt=now+5000;this.moveToSpawn(p);this.event('recover',{id:p.id,player:this.view(p)});return true;}
   return false;
  }
@@ -58,6 +60,31 @@ export class BattleRoom {
   if(this.world.blocked([p.p[0],p.p[1]+.3,p.p[2]],position,.3))return false;
   this.dirty=true;p.crateAt=now+CRATE_COOLDOWN_MS;p.shieldUntil=0;
   const crate={id:`crate:${++this.sequence}`,owner:p.id,p:position,v:[p.v[0]*.55-dir[0]*5,3,p.v[2]*.55-dir[2]*5],armedAt:now+650,expireAt:now+10000,fuseAt:0};this.crates.push(crate);this.event('crate',{crate});return true;
+ }
+ launchHoming(p,targetId,now){
+  const target=this.players.get(targetId);
+  if(p.hp<=0||now<(p.homingAt||0)||!target?.connected||target.hp<=0||target===p||dist(p.p,target.p)>HOMING.range)return false;
+  const position=[p.p[0],p.p[1]+1.25,p.p[2]];
+  if(this.world.blocked(p.p,position,HOMING.radius))return false;
+  p.homingAt=now+HOMING.cooldown;p.shieldUntil=0;this.dirty=true;
+  const missile={id:`homing:${++this.sequence}`,owner:p.id,targetId,targetDeaths:target.deaths,p:position,v:[0,HOMING.launchSpeed,0],launchedAt:now,expiresAt:now+HOMING.life};
+  this.missiles.push(missile);this.event('homing-launch',{missile,readyAt:p.homingAt});return true;
+ }
+ tickHoming(now,dt){
+  for(const missile of this.missiles){
+   const target=this.players.get(missile.targetId);
+   if(now>=missile.expiresAt||!target?.connected||target.hp<=0||target.deaths!==missile.targetDeaths){missile.dead=true;this.event('homing-end',{id:missile.id});continue;}
+   if(now-missile.launchedAt>=HOMING.ascent*1000){
+    const delta=target.p.map((value,i)=>value-missile.p[i]),length=Math.hypot(...delta)||1,blend=1-Math.exp(-8*dt);
+    missile.v=missile.v.map((value,i)=>value+(delta[i]/length*HOMING.speed-value)*blend);
+   }
+   const next=missile.p.map((value,i)=>value+missile.v[i]*dt);
+   const items=[...[...this.players.values()].filter(p=>p.connected&&p.hp>0&&p.id!==missile.owner).map(p=>this.world.playerCollider(p)),...this.targets.filter(t=>t.hp>0).map(t=>({kind:'target',id:t.id,active:true,bounds:box(t.p,[.65,.65,.65])})),...this.crates.map(c=>({kind:'crate',id:c.id,active:true,bounds:box(c.p,[.34,.34,.34])}))];
+   const hit=this.world.traceAll(missile.p,next,items,HOMING.radius);
+   if(hit){missile.p=missile.p.map((value,i)=>value+(next[i]-value)*hit.fraction);missile.dead=true;this.explode(missile.p,HOMING.splash,HOMING.damage,missile.owner,missile.id);}
+   else missile.p=next;
+  }
+  this.missiles=this.missiles.filter(m=>!m.dead);
  }
  moveToSpawn(p){const candidates=SPAWNS.map((pos,slot)=>({pos,slot,clearance:Math.min(100,...[...this.players.values()].filter(o=>o.id!==p.id&&o.hp>0&&o.connected).map(o=>dist(pos,o.p)))})).sort((a,b)=>b.clearance-a.clearance);const choice=candidates[0];p.slot=choice.slot;p.p=[...choice.pos];p.p[1]=this.world.heightAt(p.p[0],p.p[2])+.8;p.q=[0,0,0,1];p.v=[0,0,0];p.lastState=this.now();p.seq=-1;}
  hurt(p,damage,owner,position,kick=[0,0,0]){if(p.hp<=0||!p.connected||this.now()<p.shieldUntil)return;p.hp=Math.max(0,p.hp-damage);this.dirty=true;
@@ -81,6 +108,7 @@ export class BattleRoom {
    if(p.hp<=0&&now>=p.respawnAt){p.hp=MAX_HEALTH;p.respawnAt=0;p.shieldUntil=now+SHIELD_MS;this.moveToSpawn(p);this.dirty=true;this.event('respawn',{id:p.id,player:this.view(p)});}
   }
   for(const t of this.targets)if(!t.hp&&now>=t.respawn){t.hp=100;t.respawn=0;this.event('target',{id:t.id,hp:100,respawn:0});}
+  this.tickHoming(now,dt);
   for(const c of this.crates){const next=c.p.map((v,i)=>v+c.v[i]*dt);c.v[1]-=4.905*dt;const wall=this.world.blocked(c.p,next,.3);if(wall){c.v[0]*=-.25;c.v[2]*=-.25;next[0]=c.p[0];next[2]=c.p[2];}c.p=next;const floor=this.world.heightAt(c.p[0],c.p[2])+.32;if(c.p[1]<=floor){c.p[1]=floor;c.v[1]=0;c.v[0]*=Math.exp(-5*dt);c.v[2]*=Math.exp(-5*dt);}
    if(!c.fuseAt&&now>=c.armedAt&&[...this.players.values()].some(p=>p.hp>0&&p.connected&&dist(p.p,c.p)<1.45))c.fuseAt=now+400;
    if(now>=c.expireAt||(c.fuseAt&&now>=c.fuseAt)){c.dead=true;this.explode(c.p,3.5,90,c.owner,c.id);}

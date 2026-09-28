@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 
-// One small, non-interactive marker per remote player. Bearings use the
+// One small marker per remote player, with a tappable target label. Bearings use the
 // camera's horizontal axes, so targets behind the camera never flip sides.
 export class PlayerLocator {
- constructor(){
+ constructor(onSelect=()=>{}){
   this.element=document.createElement('div');this.element.className='player-locator';this.element.hidden=true;
   this.arrow=document.createElement('i');this.arrow.setAttribute('aria-hidden','true');
-  this.label=document.createElement('span');this.distance=document.createElement('small');
+  this.label=document.createElement('button');this.label.className='locator-target';this.label.type='button';this.distance=document.createElement('small');
+  this.label.addEventListener('pointerdown',event=>{event.preventDefault();onSelect();});this.label.addEventListener('click',onSelect);
   this.element.append(this.arrow,this.label,this.distance);document.body.append(this.element);
   this.projected=new THREE.Vector3();this.forward=new THREE.Vector3();this.right=new THREE.Vector3();this.delta=new THREE.Vector3();
  }

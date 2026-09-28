@@ -3,7 +3,7 @@
 (()=>{
  const editable='input,textarea,select,[contenteditable=""],[contenteditable="true"]';
  const nativeTap=editable+',button,a,label';
- const pointers='#game,.drive-zone,#aim-pad,#brake,#drop-crate';
+ const pointers='#game,.drive-zone,#aim-pad,#brake,#drop-crate,#homing-fire,.locator-target,.player-tag button';
  const closest=(event,selector)=>event.target instanceof Element&&event.target.closest(selector);
  const prevent=event=>{if(event.cancelable)event.preventDefault();};
  const listen=(type,handler)=>document.addEventListener(type,handler,{capture:true,passive:false});

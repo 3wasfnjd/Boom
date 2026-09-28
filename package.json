@@ -8,6 +8,7 @@
     "verify": "node scripts/verify-physics.mjs && node verification/shots.mjs",
     "verify:browser": "node verification/browser.cjs",
     "verify:touch": "node verification/browser-guards.cjs",
+    "verify:homing": "node verification/homing-browser.cjs",
     "verify:world": "node verification/world-browser.cjs",
     "verify:environment": "node verification/environment-browser.cjs",
     "verify:multiplayer:browser": "node verification/multiplayer-browser.cjs",

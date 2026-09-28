@@ -4,6 +4,8 @@ import {BattleRoom} from '../server/BattleRoom.js';
 import {randomId,PROTOCOL,cleanRoom,cleanName,CRATE_COOLDOWN_MS} from '../shared/BattleRules.js';
 import {MotriFireballs} from './MotriFireballs.js';
 import {PlayerLocator} from './PlayerLocator.js';
+import {HomingMissiles} from './HomingMissiles.js';
+import {HOMING} from '../shared/BattleRules.js';
 const uuid=randomId;
 export class BattleClient {
  constructor({scene,world,arena,vehicle,combat,input,camera,loadCar,selectCar}){
@@ -11,6 +13,10 @@ export class BattleClient {
   this.room=cleanRoom(new URLSearchParams(location.search).get('room'));try{this.name=localStorage.getItem('boom:name')||'لاعب '+Math.floor(100+Math.random()*900);}catch{this.name='لاعب';}
   this.status=document.getElementById('network-status');this.health=document.getElementById('player-health-fill');this.healthText=document.getElementById('player-health-text');this.killCount=document.getElementById('player-kills');this.crateButton=document.getElementById('drop-crate');this.notice=document.getElementById('battle-notice');
   this.crateButton.addEventListener('pointerdown',e=>{e.preventDefault();this.drop();});window.addEventListener('keydown',e=>{if(e.code==='KeyE'&&!e.repeat&&!e.target.matches('input'))this.drop();});
+  this.homing=new HomingMissiles(scene,combat);this.selectedTarget=null;this.homingPending=0;
+  this.homingButton=document.getElementById('homing-fire');this.homingLabel=document.getElementById('homing-target');
+  this.homingButton.addEventListener('pointerdown',e=>{e.preventDefault();this.launchHoming();});this.homingButton.addEventListener('click',()=>this.launchHoming());
+  window.addEventListener('keydown',e=>{if(e.code==='KeyF'&&!e.repeat&&!e.target.closest?.('input,textarea,select,[contenteditable]'))this.launchHoming();});
   this.setupRoomUI();window.addEventListener('pagehide',()=>this.socket?.close(1000,'left'));document.addEventListener('visibilitychange',()=>{if(!document.hidden&&this.online&&!this.ready)this.connect();});
  }
  get enabled(){return this.ready;}
@@ -25,7 +31,7 @@ export class BattleClient {
   const params=new URLSearchParams(location.search);if(params.has('debug')&&['localhost','127.0.0.1','boom.test'].includes(location.hostname)&&params.get('server'))this.endpoint=params.get('server');
   if(params.get('offline')==='1')this.endpoint='';if(this.endpoint)this.connect();else this.beginSolo();
  }
- clearPeers(){for(const id of [...this.remotes.keys()])this.removeRemote(id);for(const m of this.crateMeshes.values()){m.removeFromParent();m.material.dispose();}this.crateMeshes.clear();}
+ clearPeers(){for(const id of [...this.remotes.keys()])this.removeRemote(id);for(const m of this.crateMeshes.values()){m.removeFromParent();m.material.dispose();}this.crateMeshes.clear();this.homing.clear();this.selectedTarget=null;this.homingPending=0;this.refreshHomingUI();}
  beginSolo(){this.session++;this.socket?.close();this.socket=null;this.online=false;this.clearPeers();this.local=new BattleRoom({now:()=>this.time*1000,broadcast:m=>this.receive(m)});this.local.lastTick=this.time*1000;const welcome=this.local.join({name:this.name,body:this.car});const p=this.local.players.get(welcome.id);p.p=this.vehicle.container.position.toArray();p.q=this.vehicle.container.quaternion.toArray();p.shieldUntil=0;welcome.self=this.local.view(p);welcome.players=[welcome.self];this.receive(welcome);this.status.textContent='تدريب فردي';}
  connect(){const session=++this.session;this.socket?.close();this.local=null;this.online=true;this.ready=false;this.clearPeers();this.status.textContent='جارٍ الاتصال…';this.notice.textContent='';this.input.release();const base=new URL(this.endpoint);base.protocol=base.protocol==='http:'?'ws:':'wss:';base.pathname='/room/'+this.room;base.search='';let token;try{token=sessionStorage.getItem('boom:token:'+this.room);}catch{}
   const socket=this.socket=new WebSocket(base);socket.onopen=()=>{if(session!==this.session)return;socket.send(JSON.stringify({type:'hello',protocol:PROTOCOL,name:this.name,body:this.car,token}));};
@@ -36,6 +42,20 @@ export class BattleClient {
  state(){return {type:'state',seq:++this.sequence,p:this.vehicle.container.position.toArray(),q:this.vehicle.container.quaternion.toArray(),v:[this.vehicle.body.linvel().x/PHYSICS_SCALE,this.vehicle.body.linvel().y/PHYSICS_SCALE,this.vehicle.body.linvel().z/PHYSICS_SCALE],body:this.car,wy:this.vehicle.physical.wheels.items.map(w=>-(w.suspensionLength||.79)),steer:this.vehicle.wheelSteering||0,spin:this.vehicle.wheelSpin||0,yaw:this.combat.yaw?.rotation.y||0,pitch:this.combat.pitch?.rotation.x||0};}
  fire(origin,direction){if(!this.canAct)return null;const seq=++this.shotSequence;this.send(this.state());this.send({type:'fire',origin:origin.toArray(),direction:direction.toArray(),seq});return `${this.id}:${seq}`;}
  drop(){if(!this.canAct||this.serverNow()<(this.self.crateAt||0))return;this.send(this.state());this.send({type:'crate'});}
+ selectTarget(id){const target=this.remotes.get(id);if(target?.hp>0){this.selectedTarget=id;this.refreshHomingUI();}}
+ launchHoming(){
+  const target=this.remotes.get(this.selectedTarget),now=this.serverNow();
+  if(!this.canAct||!target||target.hp<=0||document.getElementById('room-dialog').open||now<Math.max(this.self.homingAt||0,this.homingPending)||target.group.position.distanceTo(this.vehicle.container.position)>HOMING.range)return;
+  this.homingPending=now+600;this.send(this.state());this.send({type:'homing',targetId:target.id});this.refreshHomingUI();
+ }
+ refreshHomingUI(){
+  const target=this.remotes.get(this.selectedTarget);if(!target||target.hp<=0)this.selectedTarget=null;
+  for(const r of this.remotes.values()){const selected=r.id===this.selectedTarget;r.tag.classList.toggle('selected',selected);r.name.setAttribute('aria-pressed',String(selected));r.locator.label.setAttribute('aria-pressed',String(selected));}
+  const wait=Math.max(0,Math.max(this.self?.homingAt||0,this.homingPending)-this.serverNow()),locked=this.remotes.get(this.selectedTarget),inRange=locked&&locked.group.position.distanceTo(this.vehicle.container.position)<=HOMING.range;
+  this.homingButton.disabled=!this.canAct||!inRange||wait>0;
+  this.homingButton.firstElementChild.textContent=wait>0?`تجهيز ${Math.ceil(wait/1000)} ث`:'صاروخ تتبّع ↑';
+  this.homingLabel.textContent=locked?(inRange?locked.data.name:'الهدف بعيد'):'حدّد لاعبًا';
+ }
  recover(){if(this.online){this.send({type:'recover'});return true;}return false;}
  resetSolo(){if(this.local){this.fireballs.clear();this.beginSolo();}}
  targets(){return [...this.remotes.values()].filter(r=>r.hp>0&&r.group.visible).map(r=>r.target);}
@@ -46,8 +66,10 @@ export class BattleClient {
   if(m.type==='snapshot'){this.applySnapshot(m);return;}
   if(m.type==='left'){this.removeRemote(m.id);return;}
   if(m.type==='shot'){if(m.shot.owner!==this.id)this.combat.remoteShot(m.shot);return;}
+  if(m.type==='homing-launch'){this.homing.sync([m.missile],false);if(m.missile.owner===this.id){this.self.homingAt=m.readyAt;this.homingPending=0;this.combat.sound(true);}this.refreshHomingUI();return;}
+  if(m.type==='homing-end'){this.homing.remove(m.id);return;}
   if(m.type==='impact'){this.combat.stopShot(m.id);if(!m.large)this.combat.burst(new THREE.Vector3(...m.position));return;}
-  if(m.type==='explosion'){const p=new THREE.Vector3(...m.position);this.fireballs.create(p,m.radius,this.arena.environment.terrain.heightAt(p.x,p.z),this.vehicle.container.position);return;}
+  if(m.type==='explosion'){this.homing.remove(m.id);const p=new THREE.Vector3(...m.position);this.fireballs.create(p,m.radius,this.arena.environment.terrain.heightAt(p.x,p.z),this.vehicle.container.position);return;}
   if(m.type==='damage'){
    if(m.owner===this.id)this.combat.onHit({id:m.id},m.hp===0,new THREE.Vector3(...m.position));
    if(m.id===this.id){this.self.hp=m.hp;this.self.respawnAt=m.respawnAt;this.vehicle.physical.rest.wake();if(m.hp>0){const mass=this.vehicle.body.mass();this.vehicle.body.applyImpulse({x:m.kick[0]*mass*2,y:m.kick[1]*mass*2,z:m.kick[2]*mass*2},true);}else this.setDead(true);document.getElementById('damage-flash').classList.remove('hit');void document.getElementById('damage-flash').offsetWidth;document.getElementById('damage-flash').classList.add('hit');}return;
@@ -62,19 +84,20 @@ export class BattleClient {
  setTarget(t){const target=this.arena.targets.find(x=>x.id===t.id);if(!target)return;if(t.hp>0&&!target.active)this.arena.restore(target);if(t.hp<=0&&target.active)this.arena.damage(target,100);if(target.health>t.hp)target.flash=.13;target.health=t.hp;target.bar.scale.x=t.hp/100;}
  applySnapshot(m){if(!this.ready)return;this.lastSnapshot=performance.now();const ids=new Set();for(const p of m.players||[]){if(p.id===this.id){this.self=p;this.setDead(p.hp<=0);continue;}ids.add(p.id);let r=this.remotes.get(p.id);if(!r){r=this.addRemote(p);}r.hp=p.hp;r.data=p;r.frames.push({ts:m.ts,p:new THREE.Vector3(...p.p),q:new THREE.Quaternion(...p.q),v:new THREE.Vector3(...p.v)});if(r.frames.length>20)r.frames.shift();if(r.car!==p.body)this.installRemote(r,p.body);}
   for(const id of this.remotes.keys())if(!ids.has(id))this.removeRemote(id);for(const t of m.targets||[])this.setTarget(t);this.updateCrates(m.crates||[]);
+  this.homing.sync(m.missiles||[]);this.refreshHomingUI();
   if(this.online)this.status.textContent=`${this.room==='public'?'الساحة العامة':this.room} · ${(m.players||[]).length}/٦`;
  }
- addRemote(p){const group=new THREE.Group();this.scene.add(group);const tag=document.createElement('div');tag.className='player-tag';const name=document.createElement('span');name.textContent=p.name;const track=document.createElement('i'),fill=document.createElement('b');track.append(fill);tag.append(name,track);document.body.append(tag);
+ addRemote(p){const group=new THREE.Group();this.scene.add(group);const tag=document.createElement('div');tag.className='player-tag';const name=document.createElement('button');name.type='button';name.textContent=p.name;name.setAttribute('aria-label',`تحديد ${p.name}`);name.addEventListener('pointerdown',e=>{e.preventDefault();this.selectTarget(p.id);});name.addEventListener('click',()=>this.selectTarget(p.id));const track=document.createElement('i'),fill=document.createElement('b');track.append(fill);tag.append(name,track);document.body.append(tag);
   const body=this.world.native.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(...p.p.map(v=>v*2)));this.world.native.createCollider(RAPIER.ColliderDesc.cuboid(.48*2,.35*2,.8*2).setFriction(.35).setCollisionGroups((2<<16)|5),body);
   const distance=document.createElement('small');tag.append(distance);
-  const r={id:p.id,group,tag,fill,name,distance,locator:new PlayerLocator(),frames:[],body,car:null,data:p,hp:p.hp,target:{kind:'player',id:p.id,active:true,position:group.position,bounds:new THREE.Box3()}};group.position.fromArray(p.p);group.quaternion.fromArray(p.q);this.remotes.set(p.id,r);this.installRemote(r,p.body);return r;
+  const r={id:p.id,group,tag,fill,name,distance,locator:new PlayerLocator(()=>this.selectTarget(p.id)),frames:[],body,car:null,data:p,hp:p.hp,target:{kind:'player',id:p.id,active:true,position:group.position,bounds:new THREE.Box3()}};group.position.fromArray(p.p);group.quaternion.fromArray(p.q);this.remotes.set(p.id,r);this.installRemote(r,p.body);return r;
  }
  async installRemote(r,id){r.car=id;const token=uuid();r.loadToken=token;try{const gltf=await this.loadCar(id);if(r.loadToken!==token||!this.remotes.has(r.id))return;r.group.clear();const model=gltf.scene.clone(true);model.scale.multiplyScalar(.5);model.getObjectByName('body').position.y=0;model.traverse(n=>{if(n.isMesh){n.castShadow=false;n.receiveShadow=true;}});r.group.add(model);r.model=model;r.wheels=['wheel-front-left','wheel-front-right','wheel-back-left','wheel-back-right'].map(n=>model.getObjectByName(n));r.yaw=model.getObjectByName('weapon-yaw');r.pitch=model.getObjectByName('weapon-pitch');}catch(error){console.error('Remote car failed to load',error);}}
- removeRemote(id){const r=this.remotes.get(id);if(!r)return;r.loadToken=null;r.group.removeFromParent();r.tag.remove();r.locator.remove();this.world.removeBody(r.body);this.remotes.delete(id);}
+ removeRemote(id){const r=this.remotes.get(id);if(!r)return;r.loadToken=null;r.group.removeFromParent();r.tag.remove();r.locator.remove();this.world.removeBody(r.body);this.remotes.delete(id);if(this.selectedTarget===id){this.selectedTarget=null;this.refreshHomingUI();}}
  updateCrates(crates){const ids=new Set();for(const c of crates){ids.add(c.id);let mesh=this.crateMeshes.get(c.id);if(!mesh){mesh=this.arena.targets[0].crate.clone();mesh.material=mesh.material.clone();mesh.scale.multiplyScalar(.5);mesh.castShadow=true;this.scene.add(mesh);this.crateMeshes.set(c.id,mesh);}mesh.userData.state=c;mesh.position.fromArray(c.p);mesh.material.emissive.setHex(c.fuseAt?0x771500:0);}
   for(const [id,mesh] of this.crateMeshes)if(!ids.has(id)){mesh.removeFromParent();mesh.material.dispose();this.crateMeshes.delete(id);}
  }
- update(dt){this.time+=dt;this.fireballs.update(dt);if(!this.ready)return;
+ update(dt){this.time+=dt;this.fireballs.update(dt);this.homing.update(dt);this.refreshHomingUI();if(!this.ready)return;
   this.sendTime+=dt;if(this.sendTime>=.05){this.sendTime%=.05;this.send(this.state());}
   if(this.local)this.local.tick();
   const renderTime=this.serverNow()-80,projected=new THREE.Vector3();

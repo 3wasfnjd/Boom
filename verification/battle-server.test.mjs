@@ -46,3 +46,31 @@ test('rocket volley permits six timed rockets, rejects a seventh and enforces re
  f.advance(150);assert.equal(fire(f,a,7,[0,.8,1]),false);assert.equal(f.events.filter(e=>e.type==='shot').length,6);
  f.advance(1000);assert.equal(fire(f,a,7,[0,.8,1]),true);p.hp=0;p.respawnAt=99999;f.advance(150);assert.equal(fire(f,a,8,[0,.8,1]),false);
 });
+test('homing launches vertically, follows the selected moving enemy and damages only once',()=>{
+ const f=fixture(),a=f.join('A'),b=f.join('B'),c=f.join('C'),pa=f.room.players.get(a.id),pb=f.room.players.get(b.id),pc=f.room.players.get(c.id);pose(pa,[0,.6,0]);pose(pb,[0,.6,18]);pose(pc,[-20,.6,0]);
+ assert.equal(f.room.message(a.id,{type:'homing',targetId:b.id,p:[99,99,99]}),true);const missile=f.room.missiles[0];assert.deepEqual(missile.p,[0,1.85,0]);
+ f.advance(400);assert.ok(missile.p[1]>8);assert.equal(missile.p[0],0);assert.equal(missile.p[2],0);
+ pose(pb,[9,.6,18]);f.advance(4000);assert.equal(f.room.missiles.length,0);assert.ok(pb.hp<100);assert.equal(pc.hp,100);assert.equal(pa.hp,100);
+ assert.equal(f.events.filter(e=>e.type==='damage'&&e.id===b.id).length,1);assert.equal(f.room.snapshot().players.find(p=>p.id===b.id).hp,pb.hp);
+});
+test('homing validates target and range, enforces cooldown and persists its timer',()=>{
+ const f=fixture(),a=f.join('A'),b=f.join('B'),pa=f.room.players.get(a.id),pb=f.room.players.get(b.id);pose(pa,[0,.6,0]);pose(pb,[0,.6,20]);
+ for(const targetId of [null,'unknown',a.id])assert.equal(f.room.message(a.id,{type:'homing',targetId}),false);
+ pose(pb,[100,.6,0]);assert.equal(f.room.message(a.id,{type:'homing',targetId:b.id}),false);pose(pb,[0,.6,20]);
+ assert.equal(f.room.message(a.id,{type:'homing',targetId:b.id}),true);assert.equal(f.room.message(a.id,{type:'homing',targetId:b.id}),false);assert.equal(f.room.snapshot().missiles[0].targetId,b.id);
+ const restored=new BattleRoom({now:()=>f.room.now(),world:f.world,saved:f.room.save()});assert.equal(restored.join({token:a.token}).self.homingAt,pa.homingAt);
+ f.advance(10000);assert.equal(f.room.message(a.id,{type:'homing',targetId:b.id}),true);
+});
+test('homing cancels if target leaves or dies and never retargets a respawn',()=>{
+ for(const scenario of ['leave','dead','respawn']){
+  const f=fixture(),a=f.join('A'),b=f.join('B'),pa=f.room.players.get(a.id),pb=f.room.players.get(b.id);pose(pa,[0,.6,0]);pose(pb,[0,.6,20]);f.room.message(a.id,{type:'homing',targetId:b.id});
+  if(scenario==='leave')f.room.leave(b.id);else if(scenario==='dead'){pb.hp=0;pb.respawnAt=99999;}else pb.deaths++;
+  f.advance(50);assert.equal(f.room.missiles.length,0,scenario);assert.ok(f.events.some(e=>e.type==='homing-end'));assert.ok(!f.events.some(e=>e.type==='damage'));
+ }
+});
+test('homing cannot pass through cover or fire through a roof',()=>{
+ const f=fixture(),a=f.join('A'),b=f.join('B'),pa=f.room.players.get(a.id),pb=f.room.players.get(b.id);pose(pa,[0,.6,0]);pose(pb,[0,.6,18]);
+ f.world.blockers.push({kind:'wall',active:true,bounds:{min:{x:-20,y:0,z:8},max:{x:20,y:30,z:9}}});
+ assert.equal(f.room.message(a.id,{type:'homing',targetId:b.id}),true);f.advance(4000);assert.equal(pb.hp,100);assert.equal(f.room.missiles.length,0);
+ const roof={kind:'wall',active:true,bounds:{min:{x:-2,y:1.1,z:-2},max:{x:2,y:1.3,z:2}}};f.world.blockers.push(roof);pa.homingAt=0;assert.equal(f.room.message(a.id,{type:'homing',targetId:b.id}),false);
+});
