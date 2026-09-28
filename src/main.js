@@ -19,7 +19,8 @@ function loadingProgress(){
  const percent=Math.min(100,Math.round(++loadedJobs/16*100));
  document.getElementById('loading-fill').style.width=percent+'%';document.getElementById('loading-percent').textContent=percent+'%';
  document.getElementById('loading-progress').setAttribute('aria-valuenow',String(percent));
- message.textContent=percent===100?'جاهزين… انطلق!':percent<25?'تشغيل المحركات…':percent<65?'تجهيز السيارات والأسلحة…':'تجهيز ساحة المطاردة…';
+ document.getElementById('loading-progress').style.setProperty('--progress',percent+'%');
+ message.textContent=percent===100?'جاهزين… انطلق!':'جاري تجهيز ساحة القتال…';
  loading.classList.toggle('load-ready',percent===100);
 }
 const loadingJob=promise=>promise.then(value=>{loadingProgress();return value;});
