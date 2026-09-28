@@ -1,0 +1,48 @@
+{
+  "origin": "https://boom-multiplayer.3wasf-njd1.workers.dev",
+  "checkedAt": "2026-09-28T11:30:45.184Z",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "Test client load 1",
+      "status": 200
+    },
+    {
+      "name": "Test client load 2",
+      "status": 200
+    },
+    {
+      "name": "Two real browser sessions connected to public Durable Object",
+      "passed": true,
+      "peers": [
+        {
+          "online": true,
+          "ready": true,
+          "peers": 1,
+          "models": 1,
+          "hp": 100
+        },
+        {
+          "online": true,
+          "ready": true,
+          "peers": 1,
+          "models": 1,
+          "hp": 100
+        }
+      ]
+    },
+    {
+      "name": "Live gun damage agrees across both clients",
+      "passed": true,
+      "victim": 94,
+      "seen": 94
+    },
+    {
+      "name": "Rear explosive crate replicated between clients",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "environment": "Two independent Chromium contexts connected over Internet WSS to the deployed Cloudflare Durable Object. The combat check served the checked-out client assets locally, after both contexts had successfully loaded the public Worker assets in the preceding run. No WebSocket messages or server state were mocked. Not a physical-phone performance or latency measurement.",
+  "browserBundleGitBlob": "3c12474a892b661f62359d16d13682002838998f"
+}

@@ -2,6 +2,8 @@
 
 The browser build, battle authority and all runtime assets are in this repository. Motri itself is not changed.
 
+The account owner supplied `https://boom-multiplayer.3wasf-njd1.workers.dev` as the deployment origin. `multiplayer.json` now points GitHub Pages to this origin. Both URLs use the same rooms; use `?room=public` on both devices or share an in-game invitation. Append `?offline=1` for solo practice.
+
 ## Publish using the existing Cloudflare account
 
 Connect the **existing** `3wasfnjd/Boom` repository to a new Cloudflare Worker:
@@ -11,12 +13,12 @@ Connect the **existing** `3wasfnjd/Boom` repository to a new Cloudflare Worker:
 | Worker name | `boom-multiplayer` |
 | Production branch | `main` |
 | Root directory | `/` (repository root) |
-| Build command | Leave blank; Wrangler runs the checked-in build command |
+| Build command | `npm run build && npm run package:site` |
 | Deploy command | `npx wrangler@4 deploy` |
 
-Let Cloudflare install the locked npm dependencies normally. Do not copy Motri's `SKIP_DEPENDENCY_INSTALL` setting. The root `wrangler.toml` defines the `BoomRoom` Durable Object, its initial SQLite migration and the static asset binding. A dry run with Wrangler 4.142.0 has been checked. Running workerd itself was blocked by this execution environment's network-interface enumeration restriction; see verification/worker-runtime-results.json. The shared battle logic and Node WebSocket adapter were exercised by the two-browser test.
+Let Cloudflare install the locked npm dependencies normally. Do not copy Motri's `SKIP_DEPENDENCY_INSTALL` setting. The root `wrangler.toml` defines the `BoomRoom` Durable Object, its initial SQLite migration and the static asset binding. A dry run with Wrangler 4.142.0 has been checked. Running workerd itself was blocked by this execution environment's network-interface enumeration restriction; see verification/worker-runtime-results.json. The shared battle logic and Node WebSocket adapter were exercised by the two-browser test. The subsequent public-server smoke test passed two browser joins, matching gun damage and shared rear crates; see verification/online-results.json.
 
-The game automatically uses the WebSocket server at its own origin when served from `*.workers.dev`. Open the generated Worker URL on two devices with the same `?room=public` or use the in-game room/invitation control. The original GitHub Pages URL remains a solo practice arena until its `multiplayer.json` `serverUrl` is set to the actual deployed Worker HTTPS origin. Do not put a guessed URL there.
+The game automatically uses the WebSocket server at its own origin when served from `*.workers.dev`. The GitHub Pages URL uses `multiplayer.json` `serverUrl`, fetched without a browser cache. Update that field if the Worker moves to a different HTTPS origin.
 
 No Cloudflare token is checked into this repository. GitHub Pages cannot execute a WebSocket server. Deployment needs the account owner to connect the Worker once, or an already authenticated Wrangler environment.
 
@@ -48,4 +50,4 @@ The browser verifier starts its own local server; stop a manually launched serve
 - Original stationary targets now trigger the same explosive effect and can chain to nearby crates. Their state/6-second respawn is shared.
 - Original Motri radial/upward impulse is adapted to Boom's 2:1 physics scale. Damage does not come from a client-supplied victim/HP packet.
 - Reconnect token is session-local; 30-second disconnect grace preserves HP, deaths and cooldowns. Manual recovery cannot heal. Rooms checkpoint state into Durable Object storage; in-flight bullets are transient across a Worker restart.
-- This is an anonymous prototype without accounts or permanent scoreboards. Internet/mobile latency has not been measured; tests use two independent Chromium contexts and local WebSockets.
+- This is an anonymous prototype without accounts or permanent scoreboards. Internet/mobile latency has not been measured. Two independent Chromium contexts exercised the local adapter and the public Worker connection, damage and crate replication.
