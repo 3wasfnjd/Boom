@@ -16,7 +16,11 @@ export class BattleRoom {
  save(){return {sequence:this.sequence,players:[...this.players.values()].map(p=>({...p})),targets:this.targets,crates:this.crates};}
  join({name,body,token}={}){
   const now=this.now();this.cleanup(now);let p=[...this.players.values()].find(p=>p.token===token&&typeof token==='string'&&token.length>=20);
-  if(!p&&this.players.size>=MAX_PLAYERS)return {type:'full',max:MAX_PLAYERS};
+  if(!p){
+   // Capacity counts players who are actually connected. Players who left keep their slot for the reconnect grace period, but a newcomer may take it when every seat is otherwise taken.
+   if([...this.players.values()].filter(x=>x.connected).length>=MAX_PLAYERS)return {type:'full',max:MAX_PLAYERS};
+   while(this.players.size>=MAX_PLAYERS){const oldest=[...this.players.values()].filter(x=>!x.connected).sort((x,y)=>(x.leftAt||0)-(y.leftAt||0))[0];if(!oldest)break;this.players.delete(oldest.id);}
+  }
   if(!p){const used=new Set([...this.players.values()].filter(p=>p.connected).map(p=>p.slot));let slot=SPAWNS.findIndex((_,i)=>!used.has(i));if(slot<0)slot=0;const pos=[...SPAWNS[slot]];pos[1]=this.world.heightAt(pos[0],pos[2])+.8;
    p={id:randomId(),token:randomId(),slot,name:cleanName(name),body:carId(body),p:pos,q:[0,0,0,1],v:[0,0,0],wy:[-.79,-.79,-.79,-.79],steer:0,spin:0,yaw:0,pitch:0,hp:MAX_HEALTH,shieldUntil:now+SHIELD_MS,respawnAt:0,crateAt:0,fireAt:0,recoverAt:0,kills:0,deaths:0,seq:-1,lastShotSeq:-1,lastState:now,lastMessage:now,tokens:100};this.players.set(p.id,p);
   }

@@ -74,3 +74,4 @@ test('homing cannot pass through cover or fire through a roof',()=>{
  assert.equal(f.room.message(a.id,{type:'homing',targetId:b.id}),true);f.advance(4000);assert.equal(pb.hp,100);assert.equal(f.room.missiles.length,0);
  const roof={kind:'wall',active:true,bounds:{min:{x:-2,y:1.1,z:-2},max:{x:2,y:1.3,z:2}}};f.world.blockers.push(roof);pa.homingAt=0;assert.equal(f.room.message(a.id,{type:'homing',targetId:b.id}),false);
 });
+test('a seat held only by a disconnected player is given to a newcomer',()=>{const f=fixture(),players=[];for(let i=0;i<6;i++)players.push(f.join('P'+i));assert.equal(f.join('extra').type,'full');f.room.leave(players[0].id);const w=f.join('newcomer');assert.equal(w.type,'welcome');assert.equal(f.room.players.size,6);assert.ok(!f.room.players.has(players[0].id));assert.equal(f.join('extra2').type,'full');});
